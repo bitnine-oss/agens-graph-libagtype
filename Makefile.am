@@ -9,7 +9,8 @@ libagtype_la_SOURCES = \
 	agtype.c \
 	agtype.h \
 	tokenizer.c \
-	tokenizer.h
+	tokenizer.h \
+	ag_value.c
 
 libagtype_la_LIBADD = json-c-0.12.1/libjson-c.la
 

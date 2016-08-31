@@ -45,8 +45,6 @@ ag_vertex_new(char *data)
 	get_token(&t);
 	set_gid(&v->vid, t.start);
 	get_token(&t);
-	v->props = malloc(token_length(&t) + 1);
-	/* TODO NULL */
 	v->props = make_ag_value(&t);
 
 	return v;
@@ -77,7 +75,6 @@ ag_edge_new(char *data)
 	set_gid(&e->startVid, t.start);
 	set_gid(&e->endVid, strchr(t.start, ','));
 	get_token(&t);
-	/* TODO NULL */
 	e->props = make_ag_value(&t);
 
 	return e;

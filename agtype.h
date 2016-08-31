@@ -71,35 +71,28 @@ double ag_value_get_double(ag_value val);
 int ag_value_get_int(ag_value val);
 ag_value ag_value_object_get(ag_value obj, const char *key);
 ag_value ag_value_array_get(ag_value arr, int idx);
-char *ag_value_get_string(ag_value val);
+const char *ag_value_get_string(ag_value val);
 int ag_value_object_size(ag_value obj);
 int ag_value_array_size(ag_value arr);
 
 /* iterator */
 
-#if 0
-typedef struct ag_value_iter ag_value_iter;
+typedef void * ag_value_iter;
 
-ag_value_iter ag_value_iter_begin(ag_value val);
-ag_value_iter ag_value_iter_end(ag_value val);
-ag_value_iter *
+ag_value_iter ag_value_object_iter_begin(ag_value val);
+ag_value_iter ag_value_object_iter_next(ag_value_iter iter);
+const char *ag_value_object_iter_key(ag_value_iter iter);
+const ag_value ag_value_object_iter_value(ag_value_iter iter);
 
 #define ag_value_object_foreach(obj, key, val) \
-    for(ag_value_iter *cur = ag_value_iter_begin(obj), \
-		ag_value_iter *end = ag_value_iter_end(obj); \
-		! ag_value_iter_equal(cur, end) \
-			&& (key = ag_value_iter_key(cur)) \
-			&& (val = ag_value_iter_val(cur)); \
-		cur = ag_value_iter_next(cur))
-
-#define ag_value_array_foreach(arr, idx, val) \
-    for(idx = 0; \
-        idx < ag_value_array_size(arr) && (val = json_array_get(arr, idx)); \
-        idx++) 
-#endif
+    for(ag_value_iter cur_ = ag_value_object_iter_begin(obj); \
+		(NULL != cur_) \
+			&& (key = ag_value_object_iter_key(cur_)) \
+			&& (val = ag_value_object_iter_value(cur_)); \
+		cur_ = ag_value_object_iter_next(cur_))
 
 /* utils */
 
-char *ag_value_to_string(ag_value val);
+const char *ag_value_to_string(ag_value val);
 
 #endif /* _AGTYPE_H */
