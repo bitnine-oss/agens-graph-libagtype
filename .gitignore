@@ -1,5 +1,6 @@
 *~
 *.swp
+*.pc
 INSTALL
 .deps/
 .libs/
