@@ -1,0 +1,10 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=${prefix}/include
+
+Name: agtype
+Description: Library for manipulating Agens Graph Data
+Version: @VERSION@
+Libs: -L${libdir} -lagtype
+Cflags: -I${includedir}
