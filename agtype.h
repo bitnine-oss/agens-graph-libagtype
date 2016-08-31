@@ -56,13 +56,13 @@ typedef enum {
 } ag_value_type;
 
 ag_value_type ag_value_get_type(ag_value val);
-#define ag_value_is_null(v)    ((v) && ag_value_get_type(v) == AG_VALUE_NULL)
-#define ag_value_is_boolean(v) ((v) && ag_value_get_type(v) == AG_VALUE_BOOLEAN)
-#define ag_value_is_double(v)  ((v) && ag_value_get_type(v) == AG_VALUE_DOUBLE)
-#define ag_value_is_int(v)     ((v) && ag_value_get_type(v) == AG_VALUE_INT)
-#define ag_value_is_object(v)  ((v) && ag_value_get_type(v) == AG_VALUE_OBJECT)
-#define ag_value_is_array(v)   ((v) && ag_value_get_type(v) == AG_VALUE_ARRAY)
-#define ag_value_is_string(v)  ((v) && ag_value_get_type(v) == AG_VALUE_STRING)
+#define ag_value_is_null(v)    (ag_value_get_type(v) == AG_VALUE_NULL)
+#define ag_value_is_boolean(v) (ag_value_get_type(v) == AG_VALUE_BOOLEAN)
+#define ag_value_is_double(v)  (ag_value_get_type(v) == AG_VALUE_DOUBLE)
+#define ag_value_is_int(v)     (ag_value_get_type(v) == AG_VALUE_INT)
+#define ag_value_is_object(v)  (ag_value_get_type(v) == AG_VALUE_OBJECT)
+#define ag_value_is_array(v)   (ag_value_get_type(v) == AG_VALUE_ARRAY)
+#define ag_value_is_string(v)  (ag_value_get_type(v) == AG_VALUE_STRING)
 
 /* getters */
 
@@ -88,7 +88,8 @@ const ag_value ag_value_object_iter_value(ag_value_iter iter);
     for(ag_value_iter cur_ = ag_value_object_iter_begin(obj); \
 		(NULL != cur_) \
 			&& (key = ag_value_object_iter_key(cur_)) \
-			&& (val = ag_value_object_iter_value(cur_)); \
+			&& ((val = ag_value_object_iter_value(cur_)) \
+				|| val == NULL); \
 		cur_ = ag_value_object_iter_next(cur_))
 
 /* utils */

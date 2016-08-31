@@ -36,3 +36,17 @@ void Test_ag_path(CuTest *tc)
 	CuAssertIntEquals(tc, 30, vx->vid.id);
 	CuAssertStrEquals(tc, "{ \"name\": \"ktlee\", \"age\": 41 }", ag_value_to_string(vx->props));
 }
+
+void Test_ag_value_null(CuTest *tc)
+{
+	char *data = "person[100.10]{\"name\":\"ktlee\",\"age\":null}";
+	struct ag_vertex *vx = ag_vertex_new(data);
+	CuAssertStrEquals(tc, "person", vx->label);
+	CuAssertIntEquals(tc, 100, vx->vid.oid);
+	CuAssertIntEquals(tc, 10, vx->vid.id);
+	CuAssertStrEquals(tc, "{ \"name\": \"ktlee\", \"age\": null }", ag_value_to_string(vx->props));
+	CuAssertTrue(tc, !ag_value_get_int(ag_value_object_get(vx->props, "name")));
+	CuAssertIntEquals(tc, 0, ag_value_get_int(ag_value_object_get(vx->props, "age")));
+	CuAssertTrue(tc, ag_value_is_null(ag_value_object_get(vx->props, "age")));
+}
+

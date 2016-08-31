@@ -8,17 +8,24 @@ struct pair {
 	char *val;
 };
 
+void Test_null(CuTest *tc)
+{
+	json_object *null = json_tokener_parse("null");
+	CuAssertTrue(tc, !null);
+}
+
 void Test_foreach(CuTest *tc)
 {
-	struct pair expects[3] = {
+	struct pair expects[] = {
 		{"sitename", "\"joys of programming\""}, 
 		{"tags", "[ \"c\", \"c++\", \"java\", \"PHP\" ]"},
-		{"author-details", "{ \"name\": \"Joys of Programming\", \"Number of Posts\": 10 }"}
+		{"author-details", "{ \"name\": \"Joys of Programming\", \"Number of Posts\": 10 }"},
+		{"NullVal", "null"}
 	};
 	int i;
 	const char *key;
 	ag_value value;
-	char *string = "{\"sitename\" : \"joys of programming\", \"tags\" : [ \"c\" , \"c++\", \"java\", \"PHP\" ], \"author-details\": { \"name\" : \"Joys of Programming\", \"Number of Posts\" : 10 } }";
+	char *string = "{\"sitename\" : \"joys of programming\", \"tags\" : [ \"c\" , \"c++\", \"java\", \"PHP\" ], \"author-details\": { \"name\" : \"Joys of Programming\", \"Number of Posts\" : 10 }, \"NullVal\": null } }";
 	ag_value props = json_tokener_parse(string);
 
 	i = 0;
