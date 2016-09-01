@@ -10,8 +10,15 @@ struct pair {
 
 void Test_null(CuTest *tc)
 {
-	json_object *null = json_tokener_parse("null");
+	ag_value null = json_tokener_parse("null");
 	CuAssertTrue(tc, !null);
+}
+
+void Test_boolean(CuTest *tc)
+{
+	ag_value my_bool = json_tokener_parse("true");
+	CuAssertTrue(tc, NULL != my_bool);
+	CuAssertIntEquals(tc, AG_VALUE_TRUE, ag_value_get_boolean(my_bool));
 }
 
 void Test_foreach(CuTest *tc)
