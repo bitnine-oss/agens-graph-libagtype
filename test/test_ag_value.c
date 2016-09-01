@@ -53,3 +53,19 @@ void Test_ref(CuTest *tc)
 	CuAssertStrEquals(tc, "joys of programming", ag_value_get_string(sitename));
 }
 
+void Test_object_new(CuTest *tc)
+{
+	ag_value person = ag_value_object_new();
+	ag_value_object_put(person, "name", ag_value_string_new("ktlee"));
+	ag_value_object_put(person, "age", ag_value_int_new(41));
+	CuAssertStrEquals(tc, "{ \"name\": \"ktlee\", \"age\": 41 }", ag_value_to_string(person));
+}
+
+void Test_array_new(CuTest *tc)
+{
+	ag_value arr = ag_value_array_new();
+	ag_value_array_append(arr, ag_value_true_new());
+	ag_value_array_append(arr, ag_value_double_new(0.5));
+	ag_value_array_append(arr, NULL);
+	CuAssertStrEquals(tc, "[ true, 0.5, null ]", ag_value_to_string(arr));
+}

@@ -40,7 +40,7 @@ ag_value_get_boolean(ag_value val)
 ag_value
 ag_value_double_new(double val)
 {
-	return json_object_new_boolean(val);
+	return json_object_new_double(val);
 }
 
 double 
