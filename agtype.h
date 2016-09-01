@@ -72,6 +72,9 @@ ag_value_type ag_value_get_type(ag_value val);
 
 ag_value ag_value_from_json_string(const char *jstr);
 
+/* null */
+ag_value ag_value_null_new(void);
+
 /* boolean */
 
 ag_value ag_value_true_new(void);
@@ -122,10 +125,8 @@ const ag_value ag_value_object_iter_value(ag_value_iter iter);
     for(ag_value_iter cur_ = ag_value_object_iter_begin(obj); \
 		(NULL != cur_) \
 			&& (key = ag_value_object_iter_key(cur_)) \
-			&& ((val = ag_value_object_iter_value(cur_)) \
-				|| val == NULL); \
+			&& (val = ag_value_object_iter_value(cur_)); \
 		cur_ = ag_value_object_iter_next(cur_))
-
 
 /* reference counting functions */
 

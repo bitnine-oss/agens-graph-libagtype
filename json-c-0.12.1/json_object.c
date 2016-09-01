@@ -50,8 +50,10 @@ const char *json_number_chars = "0123456789.+-eE";
 const char *json_hex_chars = "0123456789abcdefABCDEF";
 
 static void json_object_generic_delete(struct json_object* jso);
+static void json_object_no_delete(struct json_object* jso);
 static struct json_object* json_object_new(enum json_type o_type);
 
+static json_object_to_json_string_fn json_object_null_to_json_string;
 static json_object_to_json_string_fn json_object_object_to_json_string;
 static json_object_to_json_string_fn json_object_boolean_to_json_string;
 static json_object_to_json_string_fn json_object_int_to_json_string;
@@ -141,7 +143,7 @@ static int json_escape_str(struct printbuf *pb, char *str, int len)
 
 extern struct json_object* json_object_get(struct json_object *jso)
 {
-  if(jso) {
+  if(jso && jso->_ref_count > 0) {
     jso->_ref_count++;
   }
   return jso;
@@ -149,7 +151,7 @@ extern struct json_object* json_object_get(struct json_object *jso)
 
 int json_object_put(struct json_object *jso)
 {
-	if(jso)
+	if(jso && jso->_ref_count > 0)
 	{
 		jso->_ref_count--;
 		if(!jso->_ref_count)
@@ -176,6 +178,12 @@ static void json_object_generic_delete(struct json_object* jso)
   printbuf_free(jso->_pb);
   free(jso);
 }
+
+static void json_object_no_delete(struct json_object* jso)
+{
+  return;
+}
+
 
 static struct json_object* json_object_new(enum json_type o_type)
 {
@@ -231,7 +239,7 @@ void json_object_set_serializer(json_object *jso,
 		switch(jso->o_type)
 		{
 		case json_type_null:
-			jso->_to_json_string = NULL;
+			jso->_to_json_string = &json_object_null_to_json_string;
 			break;
 		case json_type_boolean:
 			jso->_to_json_string = &json_object_boolean_to_json_string;
@@ -265,8 +273,17 @@ void json_object_set_serializer(json_object *jso,
 
 const char* json_object_to_json_string_ext(struct json_object *jso, int flags)
 {
-	if (!jso)
+	if (!jso || json_object_is_type(jso, json_type_null))
 		return "null";
+
+	if (json_object_is_type(jso, json_type_boolean)) 
+	{
+		json_bool b = json_object_get_boolean(jso);
+		if (b == TRUE)
+			return "true";
+		else
+			return "false";
+	}
 
 	if ((!jso->_pb) && !(jso->_pb = printbuf_new()))
 		return NULL;
@@ -444,13 +461,34 @@ static int json_object_boolean_to_json_string(struct json_object* jso,
   else return sprintbuf(pb, "false");
 }
 
-struct json_object* json_object_new_boolean(json_bool b)
+struct json_object* json_object_new_true(void)
 {
-  struct json_object *jso = json_object_new(json_type_boolean);
-  if(!jso) return NULL;
-  jso->_to_json_string = &json_object_boolean_to_json_string;
-  jso->o.c_boolean = b;
-  return jso;
+  static struct json_object jso = { 
+    json_type_boolean, 
+    &json_object_no_delete,
+	&json_object_boolean_to_json_string,
+	-1,
+	NULL,
+	{ 1 }, /* initializes the first field of a union */
+	NULL,
+	NULL
+  };
+  return &jso;
+}
+
+struct json_object* json_object_new_false(void)
+{
+  static struct json_object jso = { 
+    json_type_boolean, 
+    &json_object_no_delete,
+	&json_object_boolean_to_json_string,
+	-1,
+	NULL,
+	{ 0 }, /* initializes the first field of a union */
+	NULL,
+	NULL
+  };
+  return &jso;
 }
 
 json_bool json_object_get_boolean(struct json_object *jso)
@@ -851,5 +889,28 @@ struct json_object* json_object_array_get_idx(struct json_object *jso,
 					      int idx)
 {
   return (struct json_object*)array_list_get_idx(jso->o.c_array, idx);
+}
+
+static int json_object_null_to_json_string(struct json_object* jso,
+					      struct printbuf *pb,
+					      int level,
+						  int flags)
+{
+  return sprintbuf(pb, "null");
+}
+
+struct json_object* json_object_new_null(void)
+{
+  static struct json_object jso = {
+    json_type_null, 
+    &json_object_no_delete,
+	&json_object_null_to_json_string,
+	-1,
+	NULL,
+	{ 0 }, /* initializes the first field of a union */
+	NULL,
+	NULL
+  };
+  return &jso;
 }
 

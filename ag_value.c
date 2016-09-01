@@ -15,18 +15,25 @@ ag_value_get_type(ag_value val)
 	return json_object_get_type(val);
 }
 
+/* null */
+ag_value
+ag_value_null_new(void)
+{
+	return json_object_new_null();
+}
+
 /* boolean */
 
 ag_value
 ag_value_true_new(void)
 {
-	return json_object_new_boolean(AG_VALUE_TRUE);
+	return json_object_new_true();
 }
 
 ag_value
 ag_value_false_new(void)
 {
-	return json_object_new_boolean(AG_VALUE_FALSE);
+	return json_object_new_false();
 }
 
 ag_value_bool 

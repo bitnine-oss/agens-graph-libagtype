@@ -444,10 +444,11 @@ extern struct json_object* json_object_array_get_idx(struct json_object *obj,
 /* json_bool type methods */
 
 /** Create a new empty json_object of type json_type_boolean
- * @param b a json_bool TRUE or FALSE (0 or 1)
+ * @param b a json_bool TRUE or FALSE (1 or 0)
  * @returns a json_object of type json_type_boolean
  */
-extern struct json_object* json_object_new_boolean(json_bool b);
+extern struct json_object* json_object_new_true(void);
+extern struct json_object* json_object_new_false(void);
 
 /** Get the json_bool value of a json_object
  *
@@ -605,6 +606,8 @@ extern const char* json_object_get_string(struct json_object *obj);
  * @returns int
  */
 extern int json_object_get_string_len(struct json_object *obj);
+
+extern struct json_object* json_object_new_null(void);
 
 #ifdef __cplusplus
 }

@@ -394,7 +394,7 @@ struct json_object* json_tokener_parse_ex(struct json_tokener *tok,
 	  || (strncmp(json_null_str, tok->pb->buf, size) == 0)
 	  ) {
 	  if (tok->st_pos == json_null_str_len) {
-	    current = NULL;
+	    current = json_object_new_null();
 	    saved_state = json_tokener_state_finish;
 	    state = json_tokener_state_eatws;
 	    goto redo_char;
@@ -640,7 +640,7 @@ struct json_object* json_tokener_parse_ex(struct json_tokener *tok,
 	  || (strncmp(json_true_str, tok->pb->buf, size1) == 0)
 	  ) {
 	  if(tok->st_pos == json_true_str_len) {
-	    current = json_object_new_boolean(1);
+	    current = json_object_new_true();
 	    saved_state = json_tokener_state_finish;
 	    state = json_tokener_state_eatws;
 	    goto redo_char;
@@ -649,7 +649,7 @@ struct json_object* json_tokener_parse_ex(struct json_tokener *tok,
 	  strncasecmp(json_false_str, tok->pb->buf, size2) == 0)
 	  || (strncmp(json_false_str, tok->pb->buf, size2) == 0)) {
 	  if(tok->st_pos == json_false_str_len) {
-	    current = json_object_new_boolean(0);
+	    current = json_object_new_false();
 	    saved_state = json_tokener_state_finish;
 	    state = json_tokener_state_eatws;
 	    goto redo_char;

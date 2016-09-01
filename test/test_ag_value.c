@@ -9,8 +9,12 @@ struct pair {
 
 void Test_null(CuTest *tc)
 {
-	ag_value null = ag_value_from_json_string("null");
-	CuAssertTrue(tc, !null);
+	ag_value null1 = ag_value_from_json_string("null");
+	ag_value null2 = ag_value_null_new();
+	CuAssertTrue(tc, NULL != null1);
+	CuAssertTrue(tc, NULL != null2);
+	ag_value_deref(null2);
+	CuAssertTrue(tc, ag_value_is_null(null2));
 }
 
 void Test_boolean(CuTest *tc)
