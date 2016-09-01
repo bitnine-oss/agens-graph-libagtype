@@ -55,12 +55,12 @@ ag_value_get_double(ag_value val)
 /* number */
 
 ag_value
-ag_value_int_new(int val)
+ag_value_int_new(int64_t val)
 {
 	return json_object_new_int(val);
 }
 
-int 
+int64_t
 ag_value_get_int(ag_value val)
 {
 	if (! ag_value_is_int(val))

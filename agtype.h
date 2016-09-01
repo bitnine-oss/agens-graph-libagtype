@@ -1,6 +1,8 @@
 #ifndef _AGTYPE_H
 #define _AGTYPE_H
 
+#include <inttypes.h>
+
 /* graph types */
 
 typedef void * ag_value; 
@@ -81,8 +83,8 @@ double ag_value_get_double(ag_value val);
 
 /* int */
 
-ag_value ag_value_int_new(int val);
-int ag_value_get_int(ag_value val);
+ag_value ag_value_int_new(int64_t val);
+int64_t ag_value_get_int(ag_value val);
 
 /* object */
 
