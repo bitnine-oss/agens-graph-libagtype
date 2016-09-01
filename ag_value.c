@@ -15,10 +15,32 @@ ag_value_get_type(ag_value val)
 	return json_object_get_type(val);
 }
 
+/* boolean */
+
+ag_value
+ag_value_true_new(void)
+{
+	return json_object_new_boolean(AG_VALUE_TRUE);
+}
+
+ag_value
+ag_value_false_new(void)
+{
+	return json_object_new_boolean(AG_VALUE_FALSE);
+}
+
 ag_value_bool 
 ag_value_get_boolean(ag_value val)
 {
 	return json_object_get_boolean(val);
+}
+
+/* double */
+
+ag_value
+ag_value_double_new(double val)
+{
+	return json_object_new_boolean(val);
 }
 
 double 
@@ -30,6 +52,14 @@ ag_value_get_double(ag_value val)
 	return json_object_get_double(val);
 }
 
+/* number */
+
+ag_value
+ag_value_int_new(int val)
+{
+	return json_object_new_int(val);
+}
+
 int 
 ag_value_get_int(ag_value val)
 {
@@ -37,6 +67,20 @@ ag_value_get_int(ag_value val)
 		return 0;
 
 	return json_object_get_int(val);
+}
+
+/* object */
+
+ag_value
+ag_value_object_new(void)
+{
+	return json_object_new_object();
+}
+
+void 
+ag_value_object_put(ag_value obj, const char *key, ag_value elem)
+{
+	json_object_object_add(obj, key, elem);
 }
 
 ag_value
@@ -53,22 +97,10 @@ ag_value_object_get(ag_value obj, const char *key)
 		return NULL;
 }
 
-ag_value
-ag_value_array_get(ag_value arr, int idx)
+void
+ag_value_object_del(ag_value obj, const char *key)
 {
-	if (! ag_value_is_array(arr))
-		return NULL;
-
-	return json_object_array_get_idx(arr, idx);
-}
-
-const char *
-ag_value_get_string(ag_value val)
-{
-	if (! ag_value_is_string(val))
-		return NULL;
-
-	return json_object_get_string(val);
+	json_object_object_del(obj, key);
 }
 
 int
@@ -80,6 +112,37 @@ ag_value_object_size(ag_value obj)
 	return json_object_object_length(obj);
 }
 
+/* array */
+
+ag_value
+ag_value_array_new(void)
+{
+	return json_object_new_array();
+}
+
+int
+ag_value_array_append(ag_value arr, ag_value elem)
+{
+	return json_object_array_add(arr, elem);
+}
+
+/*
+int
+ag_value_array_put(ag_value arr, int idx, ag_value elem)
+{
+	return json_object_array_put_idx(arr, idx, elem);
+}
+*/
+
+ag_value
+ag_value_array_get(ag_value arr, int idx)
+{
+	if (! ag_value_is_array(arr))
+		return NULL;
+
+	return json_object_array_get_idx(arr, idx);
+}
+
 int 
 ag_value_array_size(ag_value arr)
 {
@@ -89,7 +152,24 @@ ag_value_array_size(ag_value arr)
 	return json_object_array_length(arr);
 }
 
-/* iteraotr */
+/* string */
+
+ag_value
+ag_value_string_new(const char *str)
+{
+	return json_object_new_string(str);
+}
+
+const char *
+ag_value_get_string(ag_value val)
+{
+	if (! ag_value_is_string(val))
+		return NULL;
+
+	return json_object_get_string(val);
+}
+
+/* iterator */
 
 ag_value_iter 
 ag_value_object_iter_begin(ag_value val)

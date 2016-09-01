@@ -68,16 +68,42 @@ ag_value_type ag_value_get_type(ag_value val);
 
 ag_value ag_value_from_json_string(const char *jstr);
 
-/* getters */
+/* boolean */
 
+ag_value ag_value_true_new(void);
+ag_value ag_value_false_new(void);
 ag_value_bool ag_value_get_boolean(ag_value val);
+
+/* double */
+
+ag_value ag_value_double_new(double val);
 double ag_value_get_double(ag_value val);
+
+/* int */
+
+ag_value ag_value_int_new(int val);
 int ag_value_get_int(ag_value val);
+
+/* object */
+
+ag_value ag_value_object_new(void);
+void ag_value_object_put(ag_value obj, const char *key, ag_value elem);
 ag_value ag_value_object_get(ag_value obj, const char *key);
-ag_value ag_value_array_get(ag_value arr, int idx);
-const char *ag_value_get_string(ag_value val);
+void ag_value_object_del(ag_value obj, const char *key);
 int ag_value_object_size(ag_value obj);
+
+/* array */
+
+ag_value ag_value_array_new(void);
+/* Returns: 0 if OK, −1 on error. */
+int ag_value_array_append(ag_value arr, ag_value elem);
+/* int ag_value_array_put(ag_value arr, int idx, ag_value elem); */
+ag_value ag_value_array_get(ag_value arr, int idx);
 int ag_value_array_size(ag_value arr);
+
+/* string */
+ag_value ag_value_string_new(const char *str);
+const char *ag_value_get_string(ag_value val);
 
 /* iterator */
 
