@@ -1,6 +1,14 @@
 #include "agtype.h"
 #include "json.h"
 
+/* constructor */
+
+ag_value
+ag_value_from_json_string(const char *jstr)
+{
+	return json_tokener_parse(jstr);
+}
+
 ag_value_type
 ag_value_get_type(ag_value val)
 {

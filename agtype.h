@@ -64,6 +64,10 @@ ag_value_type ag_value_get_type(ag_value val);
 #define ag_value_is_array(v)   (ag_value_get_type(v) == AG_VALUE_ARRAY)
 #define ag_value_is_string(v)  (ag_value_get_type(v) == AG_VALUE_STRING)
 
+/* constructor */
+
+ag_value ag_value_from_json_string(const char *jstr);
+
 /* getters */
 
 ag_value_bool ag_value_get_boolean(ag_value val);
