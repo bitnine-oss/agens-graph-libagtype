@@ -42,3 +42,15 @@ void Test_foreach(CuTest *tc)
 		++i;
 	}
 }
+
+void Test_ref(CuTest *tc)
+{
+	char *string = "{\"sitename\" : \"joys of programming\", \"tags\" : [ \"c\" , \"c++\", \"java\", \"PHP\" ], \"author-details\": { \"name\" : \"Joys of Programming\", \"Number of Posts\" : 10 }, \"NullVal\": null } }";
+	ag_value props = json_tokener_parse(string);
+	ag_value sitename = ag_value_object_get(props, "sitename");
+	ag_value_ref(sitename);
+	ag_value_deref(props);
+	CuAssertTrue(tc, ag_value_is_string(sitename));
+	CuAssertStrEquals(tc, "joys of programming", ag_value_get_string(sitename));
+}
+

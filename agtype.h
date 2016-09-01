@@ -92,6 +92,14 @@ const ag_value ag_value_object_iter_value(ag_value_iter iter);
 				|| val == NULL); \
 		cur_ = ag_value_object_iter_next(cur_))
 
+
+/* reference counting functions */
+
+ag_value ag_value_ref(ag_value obj);
+
+/* returns 1 if the val was freed */
+int ag_value_deref(ag_value obj);
+
 /* utils */
 
 const char *ag_value_to_string(ag_value val);

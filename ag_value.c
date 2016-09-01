@@ -131,6 +131,21 @@ ag_value_object_iter_value(ag_value_iter iter)
 	return (const ag_value)((struct lh_entry *)iter)->v;
 }
 
+/* reference counting functions */
+
+ag_value 
+ag_value_ref(ag_value val)
+{
+	return json_object_get(val);
+}
+
+/* returns 1 if the val was freed */
+int 
+ag_value_deref(ag_value obj)
+{
+	return json_object_put(obj);
+}
+
 /* utils */
 
 const char *
