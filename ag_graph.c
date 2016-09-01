@@ -51,12 +51,21 @@ ag_vertex_new(char *data)
 }
 
 void
-ag_vertex_free(void * data)
+ag_vertex_free_(void *data)
 {
-	struct ag_vertex *vertex = (struct ag_vertex *)data;
-	free(vertex->label);
-	free(vertex->props);
-	free(vertex);
+	if (data) 
+	{
+		struct ag_vertex *v = (struct ag_vertex *)data;
+		free(v->label);
+		free(v->props);
+		free(v);
+	}
+}
+
+void
+ag_vertex_free(struct ag_vertex *vertex)
+{
+	ag_vertex_free_((void *)vertex);
 }
 
 struct ag_edge *
@@ -81,12 +90,21 @@ ag_edge_new(char *data)
 }
 
 void
-ag_edge_free(void *data)
+ag_edge_free_(void *data)
 {
-	struct ag_edge *edge = (struct ag_edge *)data;
-	free(edge->label);
-	free(edge->props);
-	free(edge);
+	if (data) 
+	{
+		struct ag_edge *e = (struct ag_edge *)data;
+		free(e->label);
+		free(e->props);
+		free(e);
+	}
+}
+
+void
+ag_edge_free(struct ag_edge *edge)
+{
+	ag_edge_free_((void *)edge);
 }
 
 struct ag_path *
@@ -99,8 +117,8 @@ ag_path_new(char *data)
 	int len;
 
 	p = (struct ag_path *)malloc(sizeof(struct ag_path));
-	p->vertices = array_list_new(ag_vertex_free);
-	p->edges = array_list_new(ag_edge_free);
+	p->vertices = array_list_new(ag_vertex_free_);
+	p->edges = array_list_new(ag_edge_free_);
 	token_init(&t, data);
 	i = 0;
 	len = 1024;
@@ -145,3 +163,13 @@ ag_path_get_end(struct ag_path *path)
 		return (struct ag_vertex *)array_list_get_idx(path->vertices, i - 1);
 }
 
+void
+ag_path_free(struct ag_path *path)
+{
+	if (path) 
+	{
+		array_list_free(path->vertices);
+		array_list_free(path->edges);
+		free(path);
+	}
+}

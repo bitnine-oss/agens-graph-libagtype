@@ -19,6 +19,7 @@ struct ag_vertex {
 };
 
 struct ag_vertex *ag_vertex_new(char *data);
+void ag_vertex_free(struct ag_vertex *v);
 
 struct ag_edge {
 	char *label;
@@ -29,6 +30,7 @@ struct ag_edge {
 };
 
 struct ag_edge *ag_edge_new(char *data);
+void ag_edge_free(struct ag_edge *e);
 
 struct ag_path {
 	struct array_list *vertices;
