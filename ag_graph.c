@@ -17,8 +17,8 @@ set_gid(struct ag_gid *gid, char *data)
 	gid->id = strtol(e + 1, &e, 10);
 }
 
-static ag_value
-make_ag_value(token *tok)
+static ag_json
+make_ag_json(token *tok)
 {
 	struct json_tokener *jtok;
 	json_object *p;
@@ -29,7 +29,7 @@ make_ag_value(token *tok)
 		p = NULL;
 	json_tokener_free(jtok);
 
-	return (ag_value)p;
+	return (ag_json)p;
 }
 
 struct ag_vertex *
@@ -45,7 +45,7 @@ ag_vertex_new(char *data)
 	get_token(&t);
 	set_gid(&v->vid, t.start);
 	get_token(&t);
-	v->props = make_ag_value(&t);
+	v->props = make_ag_json(&t);
 
 	return v;
 }
@@ -84,7 +84,7 @@ ag_edge_new(char *data)
 	set_gid(&e->startVid, t.start);
 	set_gid(&e->endVid, strchr(t.start, ','));
 	get_token(&t);
-	e->props = make_ag_value(&t);
+	e->props = make_ag_json(&t);
 
 	return e;
 }

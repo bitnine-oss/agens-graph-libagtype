@@ -10,7 +10,7 @@ libagtype_la_SOURCES = \
 	tokenizer.c \
 	tokenizer.h \
 	ag_graph.c \
-	ag_value.c
+	ag_json.c
 
 if ODBC
 include_HEADERS += agodbc.h

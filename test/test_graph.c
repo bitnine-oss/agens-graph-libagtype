@@ -10,9 +10,9 @@ void Test_ag_vertex(CuTest *tc)
 	CuAssertStrEquals(tc, "person", vx->label);
 	CuAssertIntEquals(tc, 100, vx->vid.oid);
 	CuAssertIntEquals(tc, 10, vx->vid.id);
-	CuAssertStrEquals(tc, "{ \"name\": \"ktlee\", \"age\": 41 }", ag_value_to_string(vx->props));
-	CuAssertTrue(tc, !ag_value_get_int(ag_value_object_get(vx->props, "name")));
-	CuAssertIntEquals(tc, 41, ag_value_get_int(ag_value_object_get(vx->props, "age")));
+	CuAssertStrEquals(tc, "{ \"name\": \"ktlee\", \"age\": 41 }", ag_json_to_string(vx->props));
+	CuAssertTrue(tc, !ag_json_get_int(ag_json_object_get(vx->props, "name")));
+	CuAssertIntEquals(tc, 41, ag_json_get_int(ag_json_object_get(vx->props, "age")));
 }
 
 void Test_ag_path(CuTest *tc)
@@ -29,24 +29,24 @@ void Test_ag_path(CuTest *tc)
 	CuAssertStrEquals(tc, "company", vx->label);
 	CuAssertIntEquals(tc, 100, vx->vid.oid);
 	CuAssertIntEquals(tc, 10, vx->vid.id);
-	CuAssertStrEquals(tc, "{ \"name\": \"bitnine\" }", ag_value_to_string(vx->props));
+	CuAssertStrEquals(tc, "{ \"name\": \"bitnine\" }", ag_json_to_string(vx->props));
 	vx = ag_path_get_end(path);
 	CuAssertStrEquals(tc, "person", vx->label);
 	CuAssertIntEquals(tc, 300, vx->vid.oid);
 	CuAssertIntEquals(tc, 30, vx->vid.id);
-	CuAssertStrEquals(tc, "{ \"name\": \"ktlee\", \"age\": 41 }", ag_value_to_string(vx->props));
+	CuAssertStrEquals(tc, "{ \"name\": \"ktlee\", \"age\": 41 }", ag_json_to_string(vx->props));
 }
 
-void Test_ag_value_null(CuTest *tc)
+void Test_ag_json_null(CuTest *tc)
 {
 	char *data = "person[100.10]{\"name\":\"ktlee\",\"age\":null}";
 	struct ag_vertex *vx = ag_vertex_new(data);
 	CuAssertStrEquals(tc, "person", vx->label);
 	CuAssertIntEquals(tc, 100, vx->vid.oid);
 	CuAssertIntEquals(tc, 10, vx->vid.id);
-	CuAssertStrEquals(tc, "{ \"name\": \"ktlee\", \"age\": null }", ag_value_to_string(vx->props));
-	CuAssertTrue(tc, !ag_value_get_int(ag_value_object_get(vx->props, "name")));
-	CuAssertIntEquals(tc, 0, ag_value_get_int(ag_value_object_get(vx->props, "age")));
-	CuAssertTrue(tc, ag_value_is_null(ag_value_object_get(vx->props, "age")));
+	CuAssertStrEquals(tc, "{ \"name\": \"ktlee\", \"age\": null }", ag_json_to_string(vx->props));
+	CuAssertTrue(tc, !ag_json_get_int(ag_json_object_get(vx->props, "name")));
+	CuAssertIntEquals(tc, 0, ag_json_get_int(ag_json_object_get(vx->props, "age")));
+	CuAssertTrue(tc, ag_json_is_null(ag_json_object_get(vx->props, "age")));
 }
 

@@ -5,7 +5,7 @@
 
 /* graph types */
 
-typedef void * ag_value; 
+typedef void * ag_json; 
 
 struct ag_gid {
 	int oid;
@@ -15,7 +15,7 @@ struct ag_gid {
 struct ag_vertex {
 	char *label;
 	struct ag_gid vid;
-	ag_value props;
+	ag_json props;
 };
 
 struct ag_vertex *ag_vertex_new(char *data);
@@ -26,7 +26,7 @@ struct ag_edge {
 	struct ag_gid eid;
 	struct ag_gid startVid;
 	struct ag_gid endVid;
-	ag_value props;
+	ag_json props;
 };
 
 struct ag_edge *ag_edge_new(char *data);
@@ -45,98 +45,98 @@ struct ag_vertex *ag_path_get_end(struct ag_path *path);
 /* value types */
 
 typedef enum {
-	AG_VALUE_FALSE,
-	AG_VALUE_TRUE
-} ag_value_bool;
+	AG_JSON_FALSE,
+	AG_JSON_TRUE
+} ag_json_bool;
 
 typedef enum {
-  AG_VALUE_NULL,
-  AG_VALUE_BOOLEAN,
-  AG_VALUE_DOUBLE,
-  AG_VALUE_INT,
-  AG_VALUE_OBJECT,
-  AG_VALUE_ARRAY,
-  AG_VALUE_STRING
-} ag_value_type;
+  AG_JSON_NULL,
+  AG_JSON_BOOLEAN,
+  AG_JSON_DOUBLE,
+  AG_JSON_INT,
+  AG_JSON_OBJECT,
+  AG_JSON_ARRAY,
+  AG_JSON_STRING
+} ag_json_type;
 
-ag_value_type ag_value_get_type(ag_value val);
-#define ag_value_is_null(v)    (ag_value_get_type(v) == AG_VALUE_NULL)
-#define ag_value_is_boolean(v) (ag_value_get_type(v) == AG_VALUE_BOOLEAN)
-#define ag_value_is_double(v)  (ag_value_get_type(v) == AG_VALUE_DOUBLE)
-#define ag_value_is_int(v)     (ag_value_get_type(v) == AG_VALUE_INT)
-#define ag_value_is_object(v)  (ag_value_get_type(v) == AG_VALUE_OBJECT)
-#define ag_value_is_array(v)   (ag_value_get_type(v) == AG_VALUE_ARRAY)
-#define ag_value_is_string(v)  (ag_value_get_type(v) == AG_VALUE_STRING)
+ag_json_type ag_json_get_type(ag_json val);
+#define ag_json_is_null(v)    (ag_json_get_type(v) == AG_JSON_NULL)
+#define ag_json_is_boolean(v) (ag_json_get_type(v) == AG_JSON_BOOLEAN)
+#define ag_json_is_double(v)  (ag_json_get_type(v) == AG_JSON_DOUBLE)
+#define ag_json_is_int(v)     (ag_json_get_type(v) == AG_JSON_INT)
+#define ag_json_is_object(v)  (ag_json_get_type(v) == AG_JSON_OBJECT)
+#define ag_json_is_array(v)   (ag_json_get_type(v) == AG_JSON_ARRAY)
+#define ag_json_is_string(v)  (ag_json_get_type(v) == AG_JSON_STRING)
 
 /* constructor */
 
-ag_value ag_value_from_json_string(const char *jstr);
+ag_json ag_json_from_string(const char *jstr);
 
 /* null */
-ag_value ag_value_null_new(void);
+ag_json ag_json_new_null(void);
 
 /* boolean */
 
-ag_value ag_value_true_new(void);
-ag_value ag_value_false_new(void);
-ag_value_bool ag_value_get_boolean(ag_value val);
+ag_json ag_json_new_true(void);
+ag_json ag_json_new_false(void);
+ag_json_bool ag_json_get_boolean(ag_json val);
 
 /* double */
 
-ag_value ag_value_double_new(double val);
-double ag_value_get_double(ag_value val);
+ag_json ag_json_new_double(double val);
+double ag_json_get_double(ag_json val);
 
 /* int */
 
-ag_value ag_value_int_new(int64_t val);
-int64_t ag_value_get_int(ag_value val);
+ag_json ag_json_new_int(int64_t val);
+int64_t ag_json_get_int(ag_json val);
 
 /* object */
 
-ag_value ag_value_object_new(void);
-void ag_value_object_put(ag_value obj, const char *key, ag_value elem);
-ag_value ag_value_object_get(ag_value obj, const char *key);
-void ag_value_object_del(ag_value obj, const char *key);
-int ag_value_object_size(ag_value obj);
+ag_json ag_json_new_object(void);
+void ag_json_object_add(ag_json obj, const char *key, ag_json elem);
+ag_json ag_json_object_get(ag_json obj, const char *key);
+void ag_json_object_del(ag_json obj, const char *key);
+int ag_json_object_size(ag_json obj);
 
 /* array */
 
-ag_value ag_value_array_new(void);
+ag_json ag_json_new_array(void);
 /* Returns: 0 if OK, −1 on error. */
-int ag_value_array_append(ag_value arr, ag_value elem);
-/* int ag_value_array_put(ag_value arr, int idx, ag_value elem); */
-ag_value ag_value_array_get(ag_value arr, int idx);
-int ag_value_array_size(ag_value arr);
+int ag_json_array_append(ag_json arr, ag_json elem);
+/* int ag_json_array_put(ag_json arr, int idx, ag_json elem); */
+ag_json ag_json_array_get(ag_json arr, int idx);
+int ag_json_array_size(ag_json arr);
 
 /* string */
-ag_value ag_value_string_new(const char *str);
-const char *ag_value_get_string(ag_value val);
+ag_json ag_json_new_string(const char *str);
+const char *ag_json_get_string(ag_json val);
 
 /* iterator */
 
-typedef void * ag_value_iter;
+typedef void * ag_json_iter;
 
-ag_value_iter ag_value_object_iter_begin(ag_value val);
-ag_value_iter ag_value_object_iter_next(ag_value_iter iter);
-const char *ag_value_object_iter_key(ag_value_iter iter);
-const ag_value ag_value_object_iter_value(ag_value_iter iter);
+ag_json_iter ag_json_object_iter_begin(ag_json val);
+ag_json_iter ag_json_object_iter_next(ag_json_iter iter);
+const char *ag_json_object_iter_key(ag_json_iter iter);
+const ag_json ag_json_object_iter_value(ag_json_iter iter);
 
-#define ag_value_object_foreach(obj, key, val) \
-    for(ag_value_iter cur_ = ag_value_object_iter_begin(obj); \
+#define ag_json_object_foreach(obj, key, val) \
+    for(ag_json_iter cur_ = ag_json_object_iter_begin(obj); \
 		(NULL != cur_) \
-			&& (key = ag_value_object_iter_key(cur_)) \
-			&& (val = ag_value_object_iter_value(cur_)); \
-		cur_ = ag_value_object_iter_next(cur_))
+			&& (key = ag_json_object_iter_key(cur_)) \
+			&& (val = ag_json_object_iter_value(cur_)); \
+		cur_ = ag_json_object_iter_next(cur_))
 
 /* reference counting functions */
 
-ag_value ag_value_ref(ag_value obj);
+ag_json ag_json_ref(ag_json obj);
 
 /* returns 1 if the val was freed */
-int ag_value_deref(ag_value obj);
+int ag_json_deref(ag_json obj);
 
 /* utils */
 
-const char *ag_value_to_string(ag_value val);
+const char *ag_json_to_string(ag_json val);
 
 #endif /* _AGTYPE_H */

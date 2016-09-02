@@ -14,7 +14,7 @@ echo "#define symbol_renames"
 echo ""
 for symbol in $symbol_list
 do
-    echo "#define $symbol ag_$symbol"
+    echo "#define $symbol ag_${symbol}_"
 done
 echo ""
 echo "#endif /*  symbol_renames */"

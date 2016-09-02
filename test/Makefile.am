@@ -1,6 +1,6 @@
 AM_CFLAGS = -I../json-c-0.12.1 -I../
 
-TEST_SRCS = test_ag_value.c \
+TEST_SRCS = test_ag_json.c \
 			test_graph.c \
 			test_tokenizer.c
 
