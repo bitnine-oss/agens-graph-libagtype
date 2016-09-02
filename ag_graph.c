@@ -57,7 +57,7 @@ ag_vertex_free_(void *data)
 	{
 		struct ag_vertex *v = (struct ag_vertex *)data;
 		free(v->label);
-		free(v->props);
+		ag_json_deref(v->props);
 		free(v);
 	}
 }
@@ -96,7 +96,7 @@ ag_edge_free_(void *data)
 	{
 		struct ag_edge *e = (struct ag_edge *)data;
 		free(e->label);
-		free(e->props);
+		ag_json_deref(e->props);
 		free(e);
 	}
 }
