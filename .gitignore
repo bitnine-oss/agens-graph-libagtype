@@ -20,6 +20,7 @@ ltmain.sh
 Makefile
 Makefile.in
 missing
+stamp-h1
 *.lo
 *.o
 /libagtype.la
