@@ -85,9 +85,9 @@ ag_json_new_object(void)
 }
 
 void 
-ag_json_object_add(ag_json obj, const char *key, ag_json elem)
+ag_json_object_add(ag_json obj, const char *key, ag_json val)
 {
-	json_object_object_add(obj, key, elem);
+	json_object_object_add(obj, key, val);
 }
 
 ag_json

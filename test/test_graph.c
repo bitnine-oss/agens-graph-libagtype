@@ -13,6 +13,7 @@ void Test_ag_vertex(CuTest *tc)
 	CuAssertStrEquals(tc, "{ \"name\": \"ktlee\", \"age\": 41 }", ag_json_to_string(vx->props));
 	CuAssertTrue(tc, !ag_json_get_int(ag_json_object_get(vx->props, "name")));
 	CuAssertIntEquals(tc, 41, ag_json_get_int(ag_json_object_get(vx->props, "age")));
+	ag_vertex_free(vx);
 }
 
 void Test_ag_path(CuTest *tc)
@@ -35,6 +36,8 @@ void Test_ag_path(CuTest *tc)
 	CuAssertIntEquals(tc, 300, vx->vid.oid);
 	CuAssertIntEquals(tc, 30, vx->vid.id);
 	CuAssertStrEquals(tc, "{ \"name\": \"ktlee\", \"age\": 41 }", ag_json_to_string(vx->props));
+	CuAssertStrEquals(tc, "company[100.10]{ \"name\": \"bitnine\" }employee[200.20][100.10,300.30]{ }person[300.30]{ \"name\": \"ktlee\", \"age\": 41 }", ag_path_to_string(path));
+	ag_path_free(path);
 }
 
 void Test_ag_json_null(CuTest *tc)
@@ -48,5 +51,6 @@ void Test_ag_json_null(CuTest *tc)
 	CuAssertTrue(tc, !ag_json_get_int(ag_json_object_get(vx->props, "name")));
 	CuAssertIntEquals(tc, 0, ag_json_get_int(ag_json_object_get(vx->props, "age")));
 	CuAssertTrue(tc, ag_json_is_null(ag_json_object_get(vx->props, "age")));
+	ag_vertex_free(vx);
 }
 

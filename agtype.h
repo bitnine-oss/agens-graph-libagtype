@@ -16,9 +16,11 @@ struct ag_vertex {
 	char *label;
 	struct ag_gid vid;
 	ag_json props;
+	const char *str;
 };
 
 struct ag_vertex *ag_vertex_new(char *data);
+const char *ag_vertex_to_string(struct ag_vertex *v);
 void ag_vertex_free(struct ag_vertex *v);
 
 struct ag_edge {
@@ -27,20 +29,25 @@ struct ag_edge {
 	struct ag_gid startVid;
 	struct ag_gid endVid;
 	ag_json props;
+	const char *str;
 };
 
 struct ag_edge *ag_edge_new(char *data);
+const char *ag_edge_to_string(struct ag_edge *e);
 void ag_edge_free(struct ag_edge *e);
 
 struct ag_path {
 	struct array_list *vertices;
 	struct array_list *edges;
+	const char *str;
 };
 
 struct ag_path* ag_path_new(char *data);
 int ag_path_get_size(struct ag_path *path);
 struct ag_vertex *ag_path_get_start(struct ag_path *path);
 struct ag_vertex *ag_path_get_end(struct ag_path *path);
+const char *ag_path_to_string(struct ag_path *p);
+void ag_path_free(struct ag_path *p);
 
 /* value types */
 
@@ -94,7 +101,7 @@ int64_t ag_json_get_int(ag_json val);
 /* object */
 
 ag_json ag_json_new_object(void);
-void ag_json_object_add(ag_json obj, const char *key, ag_json elem);
+void ag_json_object_add(ag_json obj, const char *key, ag_json val);
 ag_json ag_json_object_get(ag_json obj, const char *key);
 void ag_json_object_del(ag_json obj, const char *key);
 int ag_json_object_size(ag_json obj);
