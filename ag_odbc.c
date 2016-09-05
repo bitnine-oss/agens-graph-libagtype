@@ -4,38 +4,145 @@
 # error Need sql.h!
 #endif
 #include <sql.h>
-
+#include <sqlext.h>
+#include <stdio.h>
+#include <string.h>
+#include "agodbc.h"
 #include "agtype.h"
 
-#if 0
-SQLRETURN 
-AG_SQLGetData(StatementHandle, SQLUSMALLINT ColumnNumber,
-              SQLSMALLINT TargetType, SQLPOINTER *TargetValue,
-              SQLLEN *StrLen_or_Ind)
+/*
+ * Example:
+ *
+ * struct ag_vertex *v;
+ * SQLCHAR *buffer;
+ * SQLSMALLINT agType;
+ * SQLLEN agRawDataSize;
+ * ...
+ *
+ * SQLExecDirect(hstmt, (SQLCHAR*)"MATCH (n:person '{\"from\": \"Sweden\"}') * RETURN n", SQL_NTS)
+ * AG_SQLDescribeCol(hstmt, 1, &agType, &agRawDataSize);
+ * buffer = malloc(agRawDataSize);
+ *
+ * while (SQLFetch(hstmt)) {
+ *     AG_SQLGetData(hstmt, 1, agType, (void **)&v, buffer, agRawDataSize, ...);
+ *     ag_json_get_string(ag_json_object_get(v->props, "from"));
+ * }
+ * 
+ * ...
+ * free(buffer);
+ * ag_vertex_free(v);
+ */
+
+/* XXX
+ * large data ??? 
+ */
+SQLRETURN
+AG_SQLDescribeCol(
+		SQLHSTMT StatementHandle,
+		SQLUSMALLINT ColumnNumber,
+		SQLSMALLINT *DataTypePtr,
+		SQLLEN *RawDataSizePtr)
 {
-    SQLLEN type;
-    SQLCHAR typeName[];
+#define BUF_LEN 128
+	SQLRETURN rc;
+    SQLCHAR typeName[BUF_LEN];
+	SQLSMALLINT typeNameLen;
 
-    while (SQLGetData(StatementHandle, ColumnNumber, SQL_C_CHAR, buffer)) {
-        string_append(data, buffer);
-    }
-
-    SQLColAttribute(StatementHandle, ColumnNumber, SQL_DESC_TYPE_NAME, typeName ...);
-    if (TargetType == AG_PROPERTY && typeName == "json")
-        *TargetValue = ag_value_from_json_string(data);
-    else if (TargetType == AG_VERTEX && typeName == "vertex")
-		*TargetValue = ag_vertex_new(data);
-    else if (TargetType == AG_EDGE && typeName == "edge")
-		*TargetValue = ag_edge_new(data);
-    else if (TargetType == AG_PATH && typeName == "path")
-		*TargetValue = ag_path_new(data);
-    else
-	{
-		/* Not supported type */
+	if (DataTypePtr == NULL)
 		return SQL_ERROR;
-	}
+
+    rc = SQLColAttribute(StatementHandle, ColumnNumber, SQL_DESC_TYPE_NAME, 
+						 typeName, BUF_LEN, &typeNameLen, NULL);
+	if (rc != SQL_SUCCESS) 
+		return rc;
+	if (typeNameLen >= BUF_LEN) 
+		return SQL_ERROR;
+
+    if (0 == strcmp(typeName, "json"))
+		*DataTypePtr = AG_PROPERTY;
+    else if (0 == strcmp(typeName, "vertex"))
+		*DataTypePtr = AG_VERTEX;
+    else if (0 == strcmp(typeName, "edge"))
+		*DataTypePtr = AG_EDGE;
+    else if (0 == strcmp(typeName, "path"))
+		*DataTypePtr = AG_PATH;
+	else
+		*DataTypePtr = AG_NONE;
+
+	if (RawDataSizePtr == NULL)
+		return SQL_SUCCESS;
+
+	/* XXX SQL_DESC_OCTET_LENGTH ??? */
+    rc = SQLColAttribute(StatementHandle, ColumnNumber, SQL_DESC_LENGTH, 
+						 NULL, 0, NULL, RawDataSizePtr);
+	if (rc != SQL_SUCCESS) 
+		return rc;
 
 	return SQL_SUCCESS;
-#endif
 }
-~ 
+
+SQLRETURN 
+AG_SQLBindParameter(
+		SQLHSTMT        StatementHandle,
+		SQLUSMALLINT    ParameterNumber,
+		SQLSMALLINT     InputOutputType,
+		SQLSMALLINT     AgType,
+		SQLPOINTER      ParameterValuePtr)
+{
+	SQLCHAR *data;
+	SQLLEN StrLen_or_IndPtr = SQL_NTS;
+	if (AgType != AG_PROPERTY)
+		return SQL_ERROR;
+
+	data = (char *)ag_json_to_string((ag_json)ParameterValuePtr);
+	return SQLBindParameter(StatementHandle, ParameterNumber, InputOutputType,
+			SQL_C_CHAR, SQL_CHAR, strlen(data), 0, data, strlen(data), &StrLen_or_IndPtr);
+}
+
+SQLRETURN 
+AG_SQLGetData(
+		SQLHSTMT StatementHandle, 
+		SQLUSMALLINT ColumnNumber, 
+		SQLSMALLINT AgType, 
+		SQLPOINTER *TargetValue,
+		SQLPOINTER BufferPtr,
+		SQLLEN BufferSize,
+        SQLLEN *StrLen_or_IndPtr)
+{
+	SQLRETURN rc;
+	SQLSMALLINT srcType;
+
+	if (TargetValue == NULL || BufferPtr == NULL)
+		return SQL_ERROR;
+
+	rc = AG_SQLDescribeCol(StatementHandle, ColumnNumber, &srcType, NULL);
+	if (rc != SQL_SUCCESS)
+		return rc;
+
+	if (AgType != srcType)
+		return SQL_ERROR;
+
+	rc = SQLGetData(StatementHandle, ColumnNumber, SQL_C_CHAR, BufferPtr, BufferSize, StrLen_or_IndPtr);
+	if (rc != SQL_SUCCESS)
+		return rc;
+
+	if (*StrLen_or_IndPtr == SQL_NULL_DATA)
+		return SQL_SUCCESS;
+
+	if (AgType == AG_PROPERTY) 
+        *TargetValue = ag_json_from_string(BufferPtr);
+    else if (AgType == AG_VERTEX)
+		*TargetValue = ag_vertex_new(BufferPtr);
+    else if (AgType == AG_EDGE)
+		*TargetValue = ag_edge_new(BufferPtr);
+    else if (AgType == AG_PATH)
+		*TargetValue = ag_path_new(BufferPtr);
+    else /* Not supported type */
+		return SQL_ERROR;
+
+	if (*TargetValue == NULL) /* decoding error */
+		return SQL_ERROR;
+
+	return SQL_SUCCESS;
+}
+
