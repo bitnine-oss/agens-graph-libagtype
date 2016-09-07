@@ -58,7 +58,7 @@ AG_SQLDescribeCol(
 	if (typeNameLen >= BUF_LEN) 
 		return SQL_ERROR;
 
-    if (0 == strcmp(typeName, "json"))
+    if (0 == strcmp(typeName, "json") || 0 == strcmp(typeName, "jsonb"))
 		*DataTypePtr = AG_PROPERTY;
     else if (0 == strcmp(typeName, "vertex"))
 		*DataTypePtr = AG_VERTEX;
@@ -67,7 +67,10 @@ AG_SQLDescribeCol(
     else if (0 == strcmp(typeName, "path"))
 		*DataTypePtr = AG_PATH;
 	else
+	{
 		*DataTypePtr = AG_NONE;
+		return SQL_ERROR;
+	}
 
 	if (RawDataSizePtr == NULL)
 		return SQL_SUCCESS;
@@ -78,6 +81,8 @@ AG_SQLDescribeCol(
 	if (rc != SQL_SUCCESS) 
 		return rc;
 
+	*RawDataSizePtr += 1; /* null term */
+
 	return SQL_SUCCESS;
 }
 
@@ -87,16 +92,27 @@ AG_SQLBindParameter(
 		SQLUSMALLINT    ParameterNumber,
 		SQLSMALLINT     InputOutputType,
 		SQLSMALLINT     AgType,
-		SQLPOINTER      ParameterValuePtr)
+		SQLPOINTER      ParameterValuePtr,
+		SQLLEN         *StrLen_or_IndPtr)
 {
-	SQLCHAR *data;
-	SQLLEN StrLen_or_IndPtr = SQL_NTS;
+	SQLCHAR *data = NULL;
+	SQLLEN len;
 	if (AgType != AG_PROPERTY)
 		return SQL_ERROR;
 
-	data = (char *)ag_json_to_string((ag_json)ParameterValuePtr);
+	/* TODO null binding */
+	if (ParameterValuePtr == NULL)
+		len = 0;
+	else
+		data = (char *)ag_json_to_string((ag_json)ParameterValuePtr);
+
+	if (data == NULL)
+		len = 0;
+	else
+		len = strlen(data);
+
 	return SQLBindParameter(StatementHandle, ParameterNumber, InputOutputType,
-			SQL_C_CHAR, SQL_CHAR, strlen(data), 0, data, strlen(data), &StrLen_or_IndPtr);
+			SQL_C_CHAR, SQL_CHAR, len, 0, data, len, StrLen_or_IndPtr);
 }
 
 SQLRETURN 

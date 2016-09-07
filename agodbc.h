@@ -20,7 +20,8 @@ SQLRETURN AG_SQLBindParameter(
 		SQLUSMALLINT    ParameterNumber,
 		SQLSMALLINT     InputOutputType,
 		SQLSMALLINT     AgType,
-		SQLPOINTER      ParameterValuePtr);
+		SQLPOINTER      ParameterValuePtr,
+		SQLLEN         *StrLen_or_IndPtr);
 
 SQLRETURN AG_SQLGetData(
 		SQLHSTMT StatementHandle, 
