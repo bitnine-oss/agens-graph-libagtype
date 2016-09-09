@@ -88,7 +88,7 @@ void Test_MATCH(CuTest *tc)
 	rc = connectDB();
 	CuAssertTrue(tc, SQL_SUCCEEDED(rc));
 
-	rc = SQLExecDirect(hstmt, (SQLCHAR*)"CREATE (n:person '{\"name\": \"Emil\", \"from\": \"Sweden\", \"klout\": 99}')", SQL_NTS);
+	rc = SQLExecDirect(hstmt, (SQLCHAR*)"CREATE (n:person {'name': 'Emil', 'from': 'Sweden', 'klout': 99})", SQL_NTS);
 	check_error("CREATE");
 
 	SQLFreeStmt(hstmt, SQL_CLOSE);
@@ -276,6 +276,19 @@ void Test_Bind_ODBC_escape(CuTest *tc)
 	check_error("AG_SQLGetData");
 
 	CuAssertIntEquals(tc, 41, ag_json_get_int(age));
+
+	SQLFreeStmt(hstmt, SQL_CLOSE);
+
+	disconnectDB();
+}
+
+void Test_DELETE(CuTest *tc)
+{
+	rc = connectDB();
+	CuAssertTrue(tc, SQL_SUCCEEDED(rc));
+
+	rc = SQLExecDirect(hstmt, (SQLCHAR*)"MATCH (n:person {'from': 'KOREA'}) DELETE n", SQL_NTS);
+	check_error("DELETE");
 
 	SQLFreeStmt(hstmt, SQL_CLOSE);
 
