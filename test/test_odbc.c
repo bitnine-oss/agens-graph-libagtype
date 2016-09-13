@@ -164,20 +164,21 @@ void Test_Bind_WHERE(CuTest *tc)
 {
 	SQLINTEGER two;
 	SQLLEN ind = SQL_NTS;
-	SQLCHAR from[10] = "Sweden";
 	SQLCHAR *buffer;
 	SQLSMALLINT agType;
 	SQLLEN agRawDataSize;
+	ag_json from;
 	struct ag_vertex *v;
 
 	rc = connectDB();
 	CuAssertTrue(tc, SQL_SUCCEEDED(rc));
 
-	rc = SQLPrepare(hstmt, (SQLCHAR*)"MATCH (n:person) WHERE (n).from = to_jsonb(?::text) RETURN n", SQL_NTS);
+	rc = SQLPrepare(hstmt, (SQLCHAR*)"MATCH (n:person) WHERE (n).from = ? RETURN n", SQL_NTS);
 	check_error("SQLPrepare");
 
-	rc = SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_CHAR, 10, 0, from, 0, &ind);
-	check_error("SQLBindParameter");
+	from = ag_json_new_string("Sweden");
+	rc = AG_SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, AG_PROPERTY, from, &ind);
+	check_error("AG_SQLBindParameter");
 
 	rc = SQLExecute(hstmt);
 	check_error("SQLExecute");
@@ -194,6 +195,51 @@ void Test_Bind_WHERE(CuTest *tc)
 
 	CuAssertIntEquals(tc, 99, ag_json_get_int(ag_json_object_get(v->props, "klout")));
 
+	ag_json_deref(from);
+	free(buffer);
+	ag_vertex_free(v);
+
+	SQLFreeStmt(hstmt, SQL_CLOSE);
+
+	disconnectDB();
+}
+
+void Test_Bind_WHERE_int(CuTest *tc)
+{
+	SQLINTEGER two;
+	SQLLEN ind = SQL_NTS;
+	SQLCHAR *buffer;
+	SQLSMALLINT agType;
+	SQLLEN agRawDataSize;
+	ag_json klout;
+	struct ag_vertex *v;
+
+	rc = connectDB();
+	CuAssertTrue(tc, SQL_SUCCEEDED(rc));
+
+	rc = SQLPrepare(hstmt, (SQLCHAR*)"MATCH (n:person) WHERE (n).klout = ? RETURN n", SQL_NTS);
+	check_error("SQLPrepare");
+
+	klout = ag_json_new_int(99);
+	rc = AG_SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, AG_PROPERTY, klout, &ind);
+	check_error("AG_SQLBindParameter");
+
+	rc = SQLExecute(hstmt);
+	check_error("SQLExecute");
+
+	rc = AG_SQLDescribeCol(hstmt, 1, &agType, &agRawDataSize);
+	check_error("AG_SQLDescribeCol");
+
+	rc = SQLFetch(hstmt);
+	check_error("SQLFetch");
+
+	buffer = (SQLCHAR *)malloc(agRawDataSize);
+	rc = AG_SQLGetData(hstmt, 1, agType, (void **)&v, buffer, agRawDataSize, &ind);
+	check_error("AG_SQLGetData");
+
+	CuAssertIntEquals(tc, 99, ag_json_get_int(ag_json_object_get(v->props, "klout")));
+
+	ag_json_deref(klout);
 	free(buffer);
 	ag_vertex_free(v);
 
