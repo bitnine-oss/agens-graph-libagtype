@@ -252,7 +252,7 @@ void Test_Bind_MATCH_Property(CuTest *tc)
 {
 	SQLINTEGER two;
 	SQLLEN ind = SQL_NTS;
-	SQLCHAR from[10] = "Emil";
+	SQLCHAR name[10] = "Emil";
 	SQLCHAR *buffer;
 	SQLSMALLINT agType;
 	SQLLEN agRawDataSize;
@@ -264,11 +264,56 @@ void Test_Bind_MATCH_Property(CuTest *tc)
 	rc = SQLPrepare(hstmt, (SQLCHAR*)"MATCH ( n:person { 'name' : ?::text } )  RETURN n", SQL_NTS);
 	check_error("SQLPrepare");
 
-	rc = SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_CHAR, 10, 0, from, 0, &ind);
+	rc = SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_CHAR, 10, 0, name, 0, &ind);
 	check_error("SQLBindParameter");
 
 	rc = SQLExecute(hstmt);
 	check_error("SQLExecute");
+
+	rc = AG_SQLDescribeCol(hstmt, 1, &agType, &agRawDataSize);
+	check_error("AG_SQLDescribeCol");
+
+	rc = SQLFetch(hstmt);
+	check_error("SQLFetch");
+
+	buffer = (SQLCHAR *)malloc(agRawDataSize);
+	rc = AG_SQLGetData(hstmt, 1, agType, (void **)&v, buffer, agRawDataSize, &ind);
+	check_error("AG_SQLGetData");
+
+	CuAssertIntEquals(tc, 99, ag_json_get_int(ag_json_object_get(v->props, "klout")));
+
+	free(buffer);
+	ag_vertex_free(v);
+
+	SQLFreeStmt(hstmt, SQL_CLOSE);
+
+	disconnectDB();
+}
+
+void Test_Bind_MATCH_Property_JSONB_Scalar(CuTest *tc)
+{
+	SQLINTEGER two;
+	SQLLEN ind = SQL_NTS;
+	ag_json name;
+	SQLCHAR *buffer;
+	SQLSMALLINT agType;
+	SQLLEN agRawDataSize;
+	struct ag_vertex *v;
+
+	rc = connectDB();
+	CuAssertTrue(tc, SQL_SUCCEEDED(rc));
+
+	rc = SQLPrepare(hstmt, (SQLCHAR*)"MATCH ( n:person { 'name' : ? } )  RETURN n", SQL_NTS);
+	check_error("SQLPrepare");
+
+	name = ag_json_new_string("Emil");
+	rc = AG_SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, AG_PROPERTY, name, &ind);
+	check_error("AG_SQLBindParameter");
+
+	rc = SQLExecute(hstmt);
+	check_error("SQLExecute");
+
+	ag_json_deref(name);
 
 	rc = AG_SQLDescribeCol(hstmt, 1, &agType, &agRawDataSize);
 	check_error("AG_SQLDescribeCol");

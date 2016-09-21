@@ -112,7 +112,7 @@ AG_SQLBindParameter(
 		len = strlen(data);
 
 	return SQLBindParameter(StatementHandle, ParameterNumber, InputOutputType,
-			SQL_C_CHAR, SQL_CHAR, len, 0, data, len, StrLen_or_IndPtr);
+			SQL_C_CHAR, SQL_CHAR, len, -3802, data, len, StrLen_or_IndPtr);
 }
 
 SQLRETURN 
