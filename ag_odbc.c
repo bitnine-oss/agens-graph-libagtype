@@ -96,20 +96,21 @@ AG_SQLBindParameter(
 		SQLLEN         *StrLen_or_IndPtr)
 {
 	SQLCHAR *data = NULL;
-	SQLLEN len;
+	SQLLEN len = 0;
 	if (AgType != AG_PROPERTY)
 		return SQL_ERROR;
 
-	/* TODO null binding */
-	if (ParameterValuePtr == NULL)
-		len = 0;
-	else
+	if (ParameterValuePtr != NULL)
+	{
 		data = (char *)ag_json_to_string((ag_json)ParameterValuePtr);
+		if (data == NULL)
+			return SQL_ERROR;
+		else
+			len = strlen(data);
+	}
 
-	if (data == NULL)
-		len = 0;
-	else
-		len = strlen(data);
+	if (len == 0)
+		*StrLen_or_IndPtr = SQL_NULL_DATA;
 
 	return SQLBindParameter(StatementHandle, ParameterNumber, InputOutputType,
 			SQL_C_CHAR, SQL_CHAR, len, -3802, data, len, StrLen_or_IndPtr);
