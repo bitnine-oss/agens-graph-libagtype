@@ -88,6 +88,16 @@ void Test_MATCH(CuTest *tc)
 	rc = connectDB();
 	CuAssertTrue(tc, SQL_SUCCEEDED(rc));
 
+	rc = SQLExecDirect(hstmt, (SQLCHAR*)"DROP GRAPH u CASCADE", SQL_NTS);
+	rc = SQLExecDirect(hstmt, (SQLCHAR*)"CREATE GRAPH u", SQL_NTS);
+	check_error("CREATE GRAPH");
+	rc = SQLExecDirect(hstmt, (SQLCHAR*)"SET graph_path = u", SQL_NTS);
+	check_error("SET graph_path");
+	rc = SQLExecDirect(hstmt, (SQLCHAR*)"DROP VLABEL PERSON", SQL_NTS);
+
+	rc = SQLExecDirect(hstmt, (SQLCHAR*)"CREATE VLABEL PERSON", SQL_NTS);
+	check_error("CREATE VLABEL");
+
 	rc = SQLExecDirect(hstmt, (SQLCHAR*)"CREATE (n:person {'name': 'Emil', 'from': 'Sweden', 'klout': 99})", SQL_NTS);
 	check_error("CREATE");
 
@@ -146,6 +156,9 @@ void Test_Cast_Jsonb_to_Text(CuTest *tc)
 	rc = connectDB();
 	CuAssertTrue(tc, SQL_SUCCEEDED(rc));
 
+	rc = SQLExecDirect(hstmt, (SQLCHAR*)"SET graph_path = u", SQL_NTS);
+	check_error("SET graph_path");
+
 	SQLBindCol(hstmt, 1, SQL_C_CHAR, from, 10, &ind);
 	rc = SQLExecDirect(hstmt, (SQLCHAR*)"MATCH (n:person) RETURN (n).from", SQL_NTS);
 	check_error("SQLPrepare");
@@ -172,6 +185,9 @@ void Test_Bind_WHERE(CuTest *tc)
 
 	rc = connectDB();
 	CuAssertTrue(tc, SQL_SUCCEEDED(rc));
+
+	rc = SQLExecDirect(hstmt, (SQLCHAR*)"SET graph_path = u", SQL_NTS);
+	check_error("SET graph_path");
 
 	rc = SQLPrepare(hstmt, (SQLCHAR*)"MATCH (n:person) WHERE (n).from = ? RETURN n", SQL_NTS);
 	check_error("SQLPrepare");
@@ -217,6 +233,9 @@ void Test_Bind_WHERE_int(CuTest *tc)
 	rc = connectDB();
 	CuAssertTrue(tc, SQL_SUCCEEDED(rc));
 
+	rc = SQLExecDirect(hstmt, (SQLCHAR*)"SET graph_path = u", SQL_NTS);
+	check_error("SET graph_path");
+
 	rc = SQLPrepare(hstmt, (SQLCHAR*)"MATCH (n:person) WHERE (n).klout = ? RETURN n", SQL_NTS);
 	check_error("SQLPrepare");
 
@@ -261,6 +280,9 @@ void Test_Bind_MATCH_Property(CuTest *tc)
 	rc = connectDB();
 	CuAssertTrue(tc, SQL_SUCCEEDED(rc));
 
+	rc = SQLExecDirect(hstmt, (SQLCHAR*)"SET graph_path = u", SQL_NTS);
+	check_error("SET graph_path");
+
 	rc = SQLPrepare(hstmt, (SQLCHAR*)"MATCH ( n:person { 'name' : ?::text } )  RETURN n", SQL_NTS);
 	check_error("SQLPrepare");
 
@@ -302,6 +324,9 @@ void Test_Bind_MATCH_Property_JSONB_Scalar(CuTest *tc)
 
 	rc = connectDB();
 	CuAssertTrue(tc, SQL_SUCCEEDED(rc));
+
+	rc = SQLExecDirect(hstmt, (SQLCHAR*)"SET graph_path = u", SQL_NTS);
+	check_error("SET graph_path");
 
 	rc = SQLPrepare(hstmt, (SQLCHAR*)"MATCH ( n:person { 'name' : ? } )  RETURN n", SQL_NTS);
 	check_error("SQLPrepare");
@@ -349,6 +374,9 @@ void Test_Bind_MATCH_Property_JSONB(CuTest *tc)
 	rc = connectDB();
 	CuAssertTrue(tc, SQL_SUCCEEDED(rc));
 
+	rc = SQLExecDirect(hstmt, (SQLCHAR*)"SET graph_path = u", SQL_NTS);
+	check_error("SET graph_path");
+
 	rc = SQLPrepare(hstmt, (SQLCHAR*)"MATCH ( n:person ? ) RETURN n", SQL_NTS);
 	check_error("SQLPrepare");
 
@@ -393,6 +421,9 @@ void Test_Bind_ODBC_escape(CuTest *tc)
 	rc = connectDB();
 	CuAssertTrue(tc, SQL_SUCCEEDED(rc));
 
+	rc = SQLExecDirect(hstmt, (SQLCHAR*)"SET graph_path = u", SQL_NTS);
+	check_error("SET graph_path");
+
 	rc = SQLExecDirect(hstmt, (SQLCHAR*)"CREATE (n:person {'name': 'Emil', 'from': 'KOREA', 'age': 41})", SQL_NTS);
 	check_error("CREATE");
 
@@ -424,6 +455,9 @@ void Test_DELETE(CuTest *tc)
 {
 	rc = connectDB();
 	CuAssertTrue(tc, SQL_SUCCEEDED(rc));
+
+	rc = SQLExecDirect(hstmt, (SQLCHAR*)"SET graph_path = u", SQL_NTS);
+	check_error("SET graph_path");
 
 	rc = SQLExecDirect(hstmt, (SQLCHAR*)"MATCH (n:person {'from': 'KOREA'}) DELETE n", SQL_NTS);
 	check_error("DELETE");
