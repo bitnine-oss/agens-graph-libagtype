@@ -9,6 +9,31 @@ ag_json_from_string(const char *jstr)
 	return json_tokener_parse(jstr);
 }
 
+ag_json
+ag_json_from_string_ex(const char *jstr, int len)
+{
+	struct json_tokener *tok;
+	ag_json json;
+	
+	tok = json_tokener_new();
+	json = json_tokener_parse_ex(tok, jstr, len);
+	switch (json_tokener_get_error(tok))
+	{
+	case json_tokener_success:
+		break;
+	case json_tokener_continue:
+		json = json_tokener_parse_ex(tok, " ", -1);
+		if (json_tokener_get_error(tok) != json_tokener_success)
+			json = NULL;
+		break;
+	default:
+		json = NULL;
+	}
+	json_tokener_free(tok);
+
+	return json;
+}
+
 ag_json_type
 ag_json_get_type(ag_json val)
 {
