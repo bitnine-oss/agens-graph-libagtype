@@ -10,9 +10,9 @@
  * [oid.id], [oid.id, or ,oid.id]
  */
 static void
-set_gid(struct ag_gid *gid, char *data)
+set_gid(struct ag_gid *gid, const char *data)
 {
-	char *p = data + 1; /* skip "[" or "," */
+	const char *p = data + 1; /* skip "[" or "," */
 	char *e;
 	gid->oid = strtol(p, &e, 10);
 	gid->id = strtol(e + 1, &e, 10);
@@ -21,26 +21,23 @@ set_gid(struct ag_gid *gid, char *data)
 static ag_json
 make_ag_json(token *tok)
 {
-	struct json_tokener *jtok;
-	json_object *p;
-
-	jtok = json_tokener_new();
-	p = json_tokener_parse_ex(jtok, tok->start, token_length(tok));
-	if (json_tokener_get_error(jtok) != json_tokener_success) 
-		p = NULL;
-	json_tokener_free(jtok);
-
-	return (ag_json)p;
+	return ag_json_from_string_ex(tok->start, token_length(tok));
 }
 
 struct ag_vertex *
-ag_vertex_new(char *data)
+ag_vertex_new(const char *data)
+{
+	return ag_vertex_new_ex(data, strlen(data));
+}
+
+struct ag_vertex *
+ag_vertex_new_ex(const char *data, int len)
 {
 	struct ag_vertex *v;
 	token t;
 
 	v = (struct ag_vertex *)malloc(sizeof(struct ag_vertex));
-	token_init(&t, data);
+	token_init(&t, data, len);
 	get_token(&t);
 	v->label = strndup(t.start, token_length(&t));
 	get_token(&t);
@@ -99,13 +96,19 @@ ag_vertex_free(struct ag_vertex *vertex)
 }
 
 struct ag_edge *
-ag_edge_new(char *data)
+ag_edge_new(const char *data)
+{
+	return ag_edge_new_ex(data, strlen(data));
+}
+
+struct ag_edge *
+ag_edge_new_ex(const char *data, int len)
 {
 	struct ag_edge *e;
 	token t;
 
 	e = (struct ag_edge *)malloc(sizeof(struct ag_edge));
-	token_init(&t, data);
+	token_init(&t, data, len);
 	get_token(&t);
 	e->label = strndup(t.start, token_length(&t));
 	get_token(&t);
@@ -169,37 +172,43 @@ ag_edge_free(struct ag_edge *edge)
 }
 
 struct ag_path *
-ag_path_new(char *data)
+ag_path_new(const char *data)
+{
+	return ag_path_new_ex(data, strlen(data));
+}
+
+struct ag_path *
+ag_path_new_ex(const char *data, int len)
 {
 	struct ag_path *p;
 	token t;
 	int i;
-	char *buffer;
-	int len;
+	char *buf;
+	int buf_len;
 
 	p = (struct ag_path *)malloc(sizeof(struct ag_path));
 	p->str = NULL;
 	p->vertices = array_list_new(ag_vertex_free_);
 	p->edges = array_list_new(ag_edge_free_);
-	token_init(&t, data);
+	token_init(&t, data, len);
 	i = 0;
-	len = 1024;
-	buffer = malloc(len + 1);
+	buf_len = 1024;
+	buf = malloc(buf_len + 1);
 	while (get_path_token(&t))
 	{
-		if (token_length(&t) > len)
+		if (token_length(&t) > buf_len)
 		{
-			len = token_length(&t);
-			buffer = realloc(buffer, len + 1);
+			buf_len = token_length(&t);
+			buf = realloc(buf, buf_len + 1);
 		}
-		copy_token_str(buffer, &t);
+		copy_token_str(buf, &t);
 		if (i % 2 == 0)
-			array_list_add(p->vertices, ag_vertex_new(buffer));
+			array_list_add(p->vertices, ag_vertex_new(buf));
 		else
-			array_list_add(p->edges, ag_edge_new(buffer));
+			array_list_add(p->edges, ag_edge_new(buf));
 		++i;
 	}
-	free(buffer);
+	free(buf);
 	return p;
 }
 

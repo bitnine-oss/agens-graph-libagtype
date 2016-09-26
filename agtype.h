@@ -19,7 +19,8 @@ struct ag_vertex {
 	const char *str;
 };
 
-struct ag_vertex *ag_vertex_new(char *data);
+struct ag_vertex *ag_vertex_new(const char *data);
+struct ag_vertex *ag_vertex_new_ex(const char *data, int len);
 const char *ag_vertex_to_string(struct ag_vertex *v);
 void ag_vertex_free(struct ag_vertex *v);
 
@@ -32,7 +33,8 @@ struct ag_edge {
 	const char *str;
 };
 
-struct ag_edge *ag_edge_new(char *data);
+struct ag_edge *ag_edge_new(const char *data);
+struct ag_edge *ag_edge_new_ex(const char *data, int len);
 const char *ag_edge_to_string(struct ag_edge *e);
 void ag_edge_free(struct ag_edge *e);
 
@@ -42,7 +44,8 @@ struct ag_path {
 	const char *str;
 };
 
-struct ag_path* ag_path_new(char *data);
+struct ag_path* ag_path_new(const char *data);
+struct ag_path* ag_path_new_ex(const char *data, int len);
 int ag_path_get_size(struct ag_path *path);
 struct ag_vertex *ag_path_get_start(struct ag_path *path);
 struct ag_vertex *ag_path_get_end(struct ag_path *path);
@@ -78,6 +81,7 @@ ag_json_type ag_json_get_type(ag_json val);
 /* constructor */
 
 ag_json ag_json_from_string(const char *jstr);
+ag_json ag_json_from_string_ex(const char *jstr, int len);
 
 /* null */
 ag_json ag_json_new_null(void);

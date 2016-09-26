@@ -4,7 +4,7 @@
 #include <sqlext.h>
 #include <stdlib.h>
 #include "agtype.h"
-#include "agodbc.h"
+#include "agodbc-type.h"
 #include "CuTest.h"
 
 #define STR_LEN 128 + 1
@@ -79,9 +79,7 @@ static void disconnectDB(void)
 
 void Test_MATCH(CuTest *tc)
 {
-	SQLCHAR *buffer;
 	SQLSMALLINT agType;
-	SQLLEN agRawDataSize;
 	SQLLEN ind;
 	struct ag_vertex *v;
 
@@ -106,19 +104,14 @@ void Test_MATCH(CuTest *tc)
 	rc = SQLExecDirect(hstmt, (SQLCHAR*)"MATCH (n:person {'from': 'Sweden'}) RETURN n", SQL_NTS);
 	check_error("MATCH");
 
-	rc = AG_SQLDescribeCol(hstmt, 1, &agType, &agRawDataSize);
-	check_error("AG_SQLDescribeCol");
+	rc = AG_SQLBindCol(hstmt, 1, AG_VERTEX, (SQLPOINTER *)&v, &ind);
+	check_error("AG_SQLBindCol");
 
 	rc = SQLFetch(hstmt);
 	check_error("Fetch");
 
-	buffer = (SQLCHAR *)malloc(agRawDataSize);
-	rc = AG_SQLGetData(hstmt, 1, agType, (void **)&v, buffer, agRawDataSize, &ind);
-	check_error("AG_SQLGetData");
-
 	CuAssertStrEquals(tc, "Sweden", ag_json_get_string(ag_json_object_get(v->props, "from")));
 
-	free(buffer);
 	ag_vertex_free(v);
 
 	SQLFreeStmt(hstmt, SQL_CLOSE);
@@ -177,9 +170,6 @@ void Test_Bind_WHERE(CuTest *tc)
 {
 	SQLINTEGER two;
 	SQLLEN ind = SQL_NTS;
-	SQLCHAR *buffer;
-	SQLSMALLINT agType;
-	SQLLEN agRawDataSize;
 	ag_json from;
 	struct ag_vertex *v;
 
@@ -199,20 +189,15 @@ void Test_Bind_WHERE(CuTest *tc)
 	rc = SQLExecute(hstmt);
 	check_error("SQLExecute");
 
-	rc = AG_SQLDescribeCol(hstmt, 1, &agType, &agRawDataSize);
-	check_error("AG_SQLDescribeCol");
+	rc = AG_SQLBindCol(hstmt, 1, AG_VERTEX, (SQLPOINTER *)&v, &ind);
+	check_error("AG_SQLBindCol");
 
 	rc = SQLFetch(hstmt);
 	check_error("SQLFetch");
 
-	buffer = (SQLCHAR *)malloc(agRawDataSize);
-	rc = AG_SQLGetData(hstmt, 1, agType, (void **)&v, buffer, agRawDataSize, &ind);
-	check_error("AG_SQLGetData");
-
 	CuAssertIntEquals(tc, 99, ag_json_get_int(ag_json_object_get(v->props, "klout")));
 
 	ag_json_deref(from);
-	free(buffer);
 	ag_vertex_free(v);
 
 	SQLFreeStmt(hstmt, SQL_CLOSE);
@@ -224,9 +209,6 @@ void Test_Bind_WHERE_int(CuTest *tc)
 {
 	SQLINTEGER two;
 	SQLLEN ind = SQL_NTS;
-	SQLCHAR *buffer;
-	SQLSMALLINT agType;
-	SQLLEN agRawDataSize;
 	ag_json klout;
 	struct ag_vertex *v;
 
@@ -246,20 +228,15 @@ void Test_Bind_WHERE_int(CuTest *tc)
 	rc = SQLExecute(hstmt);
 	check_error("SQLExecute");
 
-	rc = AG_SQLDescribeCol(hstmt, 1, &agType, &agRawDataSize);
-	check_error("AG_SQLDescribeCol");
+	rc = AG_SQLBindCol(hstmt, 1, AG_VERTEX, (SQLPOINTER *)&v, &ind);
+	check_error("AG_SQLBindCol");
 
 	rc = SQLFetch(hstmt);
 	check_error("SQLFetch");
 
-	buffer = (SQLCHAR *)malloc(agRawDataSize);
-	rc = AG_SQLGetData(hstmt, 1, agType, (void **)&v, buffer, agRawDataSize, &ind);
-	check_error("AG_SQLGetData");
-
 	CuAssertIntEquals(tc, 99, ag_json_get_int(ag_json_object_get(v->props, "klout")));
 
 	ag_json_deref(klout);
-	free(buffer);
 	ag_vertex_free(v);
 
 	SQLFreeStmt(hstmt, SQL_CLOSE);
@@ -272,9 +249,6 @@ void Test_Bind_MATCH_Property(CuTest *tc)
 	SQLINTEGER two;
 	SQLLEN ind = SQL_NTS;
 	SQLCHAR name[10] = "Emil";
-	SQLCHAR *buffer;
-	SQLSMALLINT agType;
-	SQLLEN agRawDataSize;
 	struct ag_vertex *v;
 
 	rc = connectDB();
@@ -292,19 +266,14 @@ void Test_Bind_MATCH_Property(CuTest *tc)
 	rc = SQLExecute(hstmt);
 	check_error("SQLExecute");
 
-	rc = AG_SQLDescribeCol(hstmt, 1, &agType, &agRawDataSize);
-	check_error("AG_SQLDescribeCol");
+	rc = AG_SQLBindCol(hstmt, 1, AG_VERTEX, (SQLPOINTER *)&v, &ind);
+	check_error("AG_SQLBindCol");
 
 	rc = SQLFetch(hstmt);
 	check_error("SQLFetch");
 
-	buffer = (SQLCHAR *)malloc(agRawDataSize);
-	rc = AG_SQLGetData(hstmt, 1, agType, (void **)&v, buffer, agRawDataSize, &ind);
-	check_error("AG_SQLGetData");
-
 	CuAssertIntEquals(tc, 99, ag_json_get_int(ag_json_object_get(v->props, "klout")));
 
-	free(buffer);
 	ag_vertex_free(v);
 
 	SQLFreeStmt(hstmt, SQL_CLOSE);
@@ -317,9 +286,6 @@ void Test_Bind_MATCH_Property_JSONB_Scalar(CuTest *tc)
 	SQLINTEGER two;
 	SQLLEN ind = SQL_NTS;
 	ag_json name;
-	SQLCHAR *buffer;
-	SQLSMALLINT agType;
-	SQLLEN agRawDataSize;
 	struct ag_vertex *v;
 
 	rc = connectDB();
@@ -340,19 +306,14 @@ void Test_Bind_MATCH_Property_JSONB_Scalar(CuTest *tc)
 
 	ag_json_deref(name);
 
-	rc = AG_SQLDescribeCol(hstmt, 1, &agType, &agRawDataSize);
-	check_error("AG_SQLDescribeCol");
+	rc = AG_SQLBindCol(hstmt, 1, AG_VERTEX, (SQLPOINTER *)&v, &ind);
+	check_error("AG_SQLBindCol");
 
 	rc = SQLFetch(hstmt);
 	check_error("SQLFetch");
 
-	buffer = (SQLCHAR *)malloc(agRawDataSize);
-	rc = AG_SQLGetData(hstmt, 1, agType, (void **)&v, buffer, agRawDataSize, &ind);
-	check_error("AG_SQLGetData");
-
 	CuAssertIntEquals(tc, 99, ag_json_get_int(ag_json_object_get(v->props, "klout")));
 
-	free(buffer);
 	ag_vertex_free(v);
 
 	SQLFreeStmt(hstmt, SQL_CLOSE);
@@ -413,9 +374,6 @@ void Test_Bind_MATCH_Property_JSONB(CuTest *tc)
 void Test_Bind_ODBC_escape(CuTest *tc)
 {
 	SQLLEN ind = SQL_NTS;
-	SQLCHAR *buffer;
-	SQLSMALLINT agType;
-	SQLLEN agRawDataSize;
 	ag_json age;
 
 	rc = connectDB();
@@ -434,15 +392,11 @@ void Test_Bind_ODBC_escape(CuTest *tc)
 		"RETURN (n).age", SQL_NTS);
 	check_error("SQLExecDirect");
 
+	rc = AG_SQLBindCol(hstmt, 1, AG_PROPERTY, (SQLPOINTER *)&age, &ind);
+	check_error("AG_SQLBindCol");
+
 	rc = SQLFetch(hstmt);
 	check_error("SQLFetch");
-
-	rc = AG_SQLDescribeCol(hstmt, 1, &agType, &agRawDataSize);
-	check_error("AG_SQLDescribeCol");
-	
-	buffer = (SQLCHAR *)malloc(agRawDataSize);
-	rc = AG_SQLGetData(hstmt, 1, agType, (void **)&age, buffer, agRawDataSize, &ind);
-	check_error("AG_SQLGetData");
 
 	CuAssertIntEquals(tc, 41, ag_json_get_int(age));
 

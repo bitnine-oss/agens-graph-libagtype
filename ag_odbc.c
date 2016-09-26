@@ -7,8 +7,8 @@
 #include <sqlext.h>
 #include <stdio.h>
 #include <string.h>
-#include "agodbc.h"
 #include "agtype.h"
+#include "agodbc-type.h"
 
 /*
  * Example:
@@ -75,7 +75,6 @@ AG_SQLDescribeCol(
 	if (RawDataSizePtr == NULL)
 		return SQL_SUCCESS;
 
-	/* XXX SQL_DESC_OCTET_LENGTH ??? */
     rc = SQLColAttribute(StatementHandle, ColumnNumber, SQL_DESC_LENGTH, 
 						 NULL, 0, NULL, RawDataSizePtr);
 	if (rc != SQL_SUCCESS) 
@@ -117,6 +116,59 @@ AG_SQLBindParameter(
 }
 
 SQLRETURN 
+AG_SQLBindCol(
+		SQLHSTMT       StatementHandle,
+      	SQLUSMALLINT   ColumnNumber,
+      	SQLSMALLINT    TargetType,
+      	SQLPOINTER    *TargetValuePtr,
+      	SQLLEN        *StrLen_or_Ind)
+{
+	SQLRETURN rc;
+	SQLSMALLINT graphoid;
+	SQLHDESC hdesc;
+
+	rc = SQLBindCol(StatementHandle, ColumnNumber, SQL_CHAR, 
+			(SQLPOINTER)TargetValuePtr, 10, StrLen_or_Ind);	
+	if (rc != SQL_SUCCESS)
+		return rc;
+
+	rc = SQLGetStmtAttr(StatementHandle, SQL_ATTR_APP_ROW_DESC, &hdesc, 
+			SQL_IS_POINTER, NULL);
+	if (rc != SQL_SUCCESS)
+		return rc;
+
+	switch (TargetType)
+	{
+	case AG_PROPERTY:
+		graphoid = -3802;
+		break;
+	case AG_VERTEX:
+		graphoid = -7012;
+		break;
+	case AG_EDGE:
+		graphoid = -7022;
+		break;
+	case AG_PATH:
+		graphoid = -7032;
+		break;
+	default:
+		return SQL_ERROR;
+	}
+
+	rc = SQLSetDescField(hdesc, ColumnNumber, SQL_DESC_SCALE, 
+			(SQLPOINTER)graphoid, 0);
+	if (rc != SQL_SUCCESS)
+		return rc;
+
+	rc = SQLSetDescField(hdesc, ColumnNumber, SQL_DESC_DATA_PTR, 
+			(SQLPOINTER)TargetValuePtr, 0);
+	if (rc != SQL_SUCCESS)
+		return rc;
+
+	return SQL_SUCCESS;
+}
+
+SQLRETURN 
 AG_SQLGetData(
 		SQLHSTMT StatementHandle, 
 		SQLUSMALLINT ColumnNumber, 
@@ -139,7 +191,8 @@ AG_SQLGetData(
 	if (AgType != srcType)
 		return SQL_ERROR;
 
-	rc = SQLGetData(StatementHandle, ColumnNumber, SQL_C_CHAR, BufferPtr, BufferSize, StrLen_or_IndPtr);
+	rc = SQLGetData(StatementHandle, ColumnNumber, SQL_C_CHAR, BufferPtr, 
+			BufferSize, StrLen_or_IndPtr);
 	if (rc != SQL_SUCCESS)
 		return rc;
 

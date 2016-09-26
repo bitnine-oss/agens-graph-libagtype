@@ -1,5 +1,5 @@
-#ifndef _AGODBC_H
-#define _AGODBC_H
+#ifndef _AGODBC_TYPE_H
+#define _AGODBC_TYPE_H
 
 /* graph types */
 
@@ -23,6 +23,13 @@ SQLRETURN AG_SQLBindParameter(
 		SQLPOINTER      ParameterValuePtr,
 		SQLLEN         *StrLen_or_IndPtr);
 
+SQLRETURN AG_SQLBindCol(
+		SQLHSTMT       StatementHandle,
+      	SQLUSMALLINT   ColumnNumber,
+      	SQLSMALLINT    TargetType,
+      	SQLPOINTER    *TargetValuePtr,
+      	SQLLEN        *StrLen_or_Ind);
+
 SQLRETURN AG_SQLGetData(
 		SQLHSTMT StatementHandle, 
 		SQLUSMALLINT ColumnNumber, 
@@ -32,4 +39,4 @@ SQLRETURN AG_SQLGetData(
 		SQLLEN BufferSize,
         SQLLEN *StrLen_or_IndPtr);
 
-#endif /* _AGODBC_H */
+#endif /* _AGODBC_TYPE_H */

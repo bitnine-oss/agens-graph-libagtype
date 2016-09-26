@@ -13,7 +13,7 @@ void Test_get_token(CuTest *tc)
 	int i;
 	char buffer[100];
 
-	token_init(&t, data);
+	token_init(&t, data, strlen(data));
 
 	i = 0;
 	while (get_token(&t)) 
@@ -38,7 +38,7 @@ void Test_get_path_token(CuTest *tc)
 	int i;
 	char buffer[100];
 
-	token_init(&t, data);
+	token_init(&t, data, strlen(data));
 
 	i = 0;
 	while (get_path_token(&t))

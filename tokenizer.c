@@ -1,23 +1,37 @@
 #include <string.h>
 #include "tokenizer.h"
 
-static char *
-get_props(char *data)
+static const char *
+get_props(token *tok)
 {
-	char *ch = data;
+	const char *p = tok->start;
 	int depth = 0;
 
-	while (*ch != '\0') 
+	while (p != tok->eof)
 	{
-		if (depth == 1 && *ch == '}')
-			return ch;
-		else if (*ch == '}')
+		if (depth == 1 && *p == '}')
+			return p;
+		else if (*p == '}')
 			depth--;
-		else if (*ch == '{') 
+		else if (*p == '{') 
 		{
 			depth++;
 		}
-		ch++;
+		p++;
+	}
+	return NULL;
+}
+
+static const char *
+tok_strchr(token *tok, char c)
+{
+	const char *p = tok->start;
+
+	while (p != tok->eof)
+	{
+		if (*p == c)
+			return p;
+		p++;
 	}
 	return NULL;
 }
@@ -42,13 +56,13 @@ get_token(token *data)
 	switch (*data->start) 
 	{
 		case '[': 
-			data->end = strchr(data->start, ']') + 1;
+			data->end = tok_strchr(data, ']') + 1;
 			break;
 		case '{':
-			data->end = get_props(data->start) + 1;
+			data->end = get_props(data) + 1;
 			break;
 		default:
-			data->end = strchr(data->start, '[');
+			data->end = tok_strchr(data, '[');
 			break;
 	}
 	return 1;
@@ -69,7 +83,7 @@ get_path_token(token *data)
 {
 	int depth = 0;
 	int in_gid = 0;
-	char *p;
+	const char *p;
 
 	if (token_is_end (data))
 		return 0;
@@ -78,7 +92,7 @@ get_path_token(token *data)
 		data->start = data->end + 1; /* skip "," */
 
 	p = data->start;
-	while (*p != '\0')
+	while (p != data->eof)
 	{
 		char c = *p;
 		if ('{' == c) 

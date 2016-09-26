@@ -2,19 +2,21 @@
 #define _TOKENIZER_H
 
 typedef struct {
-	char *start;
-	char *end;
+	const char *start;
+	const char *end;
+	const char *eof;
 } token;
 
 #define token_length(t) ((t)->end - (t)->start)
 
-#define token_init(t,data) do { \
+#define token_init(t,data,len) do { \
 	(t)->start = (data); \
 	(t)->end = NULL; \
+	(t)->eof = (t)->start + (len); \
 } \
 while (0)
 
-#define token_is_end(t) ((t)->end != NULL && *(t)->end == '\0')
+#define token_is_end(t) ((t)->end == (t)->eof)
 
 int get_token(token *t);
 int get_path_token(token *t);
