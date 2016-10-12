@@ -153,13 +153,13 @@ void Test_Cast_Jsonb_to_Text(CuTest *tc)
 	check_error("SET graph_path");
 
 	SQLBindCol(hstmt, 1, SQL_C_CHAR, from, 10, &ind);
-	rc = SQLExecDirect(hstmt, (SQLCHAR*)"MATCH (n:person) RETURN (n).from", SQL_NTS);
+	rc = SQLExecDirect(hstmt, (SQLCHAR*)"MATCH (n:person) RETURN n.from", SQL_NTS);
 	check_error("SQLPrepare");
 
 	rc = SQLFetch(hstmt);
 	check_error("SQLFetch");
 
-	CuAssertStrEquals(tc, "\"Sweden\"", from);
+	CuAssertStrEquals(tc, "Sweden", from);
 
 	SQLFreeStmt(hstmt, SQL_CLOSE);
 
@@ -170,7 +170,7 @@ void Test_Bind_WHERE(CuTest *tc)
 {
 	SQLINTEGER two;
 	SQLLEN ind = SQL_NTS;
-	ag_json from;
+	SQLCHAR from[10] = "Sweden";
 	struct ag_vertex *v;
 
 	rc = connectDB();
@@ -179,12 +179,11 @@ void Test_Bind_WHERE(CuTest *tc)
 	rc = SQLExecDirect(hstmt, (SQLCHAR*)"SET graph_path = u", SQL_NTS);
 	check_error("SET graph_path");
 
-	rc = SQLPrepare(hstmt, (SQLCHAR*)"MATCH (n:person) WHERE (n).from = ? RETURN n", SQL_NTS);
+	rc = SQLPrepare(hstmt, (SQLCHAR*)"MATCH (n:person) WHERE n.from = ? RETURN n", SQL_NTS);
 	check_error("SQLPrepare");
 
-	from = ag_json_new_string("Sweden");
-	rc = AG_SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, AG_PROPERTY, from, &ind);
-	check_error("AG_SQLBindParameter");
+	rc = SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_CHAR, 10, 0, from, 0, &ind);
+	check_error("SQLBindParameter");
 
 	rc = SQLExecute(hstmt);
 	check_error("SQLExecute");
@@ -197,7 +196,6 @@ void Test_Bind_WHERE(CuTest *tc)
 
 	CuAssertIntEquals(tc, 99, ag_json_get_int(ag_json_object_get(v->props, "klout")));
 
-	ag_json_deref(from);
 	ag_vertex_free(v);
 
 	SQLFreeStmt(hstmt, SQL_CLOSE);
@@ -208,8 +206,9 @@ void Test_Bind_WHERE(CuTest *tc)
 void Test_Bind_WHERE_int(CuTest *tc)
 {
 	SQLINTEGER two;
+	SQLINTEGER klout;
 	SQLLEN ind = SQL_NTS;
-	ag_json klout;
+	SQLLEN klout_ind = 0;
 	struct ag_vertex *v;
 
 	rc = connectDB();
@@ -218,11 +217,11 @@ void Test_Bind_WHERE_int(CuTest *tc)
 	rc = SQLExecDirect(hstmt, (SQLCHAR*)"SET graph_path = u", SQL_NTS);
 	check_error("SET graph_path");
 
-	rc = SQLPrepare(hstmt, (SQLCHAR*)"MATCH (n:person) WHERE (n).klout = ? RETURN n", SQL_NTS);
+	rc = SQLPrepare(hstmt, (SQLCHAR*)"MATCH (n:person) WHERE n.klout::int = ? RETURN n", SQL_NTS);
 	check_error("SQLPrepare");
 
-	klout = ag_json_new_int(99);
-	rc = AG_SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, AG_PROPERTY, klout, &ind);
+	klout = 99;
+	rc = SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, SQL_INTEGER, SQL_INTEGER, 0, 0, &klout, 0, &klout_ind);
 	check_error("AG_SQLBindParameter");
 
 	rc = SQLExecute(hstmt);
@@ -236,7 +235,6 @@ void Test_Bind_WHERE_int(CuTest *tc)
 
 	CuAssertIntEquals(tc, 99, ag_json_get_int(ag_json_object_get(v->props, "klout")));
 
-	ag_json_deref(klout);
 	ag_vertex_free(v);
 
 	SQLFreeStmt(hstmt, SQL_CLOSE);
@@ -389,7 +387,7 @@ void Test_Bind_ODBC_escape(CuTest *tc)
 	
 	rc = SQLExecDirect(hstmt, 
 		(SQLCHAR*)"MATCH ( n:person { 'from' : {fn UCASE('Korea')} } ) "
-		"RETURN (n).age", SQL_NTS);
+		"RETURN n.age", SQL_NTS);
 	check_error("SQLExecDirect");
 
 	rc = AG_SQLBindCol(hstmt, 1, AG_PROPERTY, (SQLPOINTER *)&age, &ind);
