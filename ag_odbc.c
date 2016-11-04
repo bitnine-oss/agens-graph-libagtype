@@ -156,7 +156,7 @@ AG_SQLBindCol(
 	}
 
 	rc = SQLSetDescField(hdesc, ColumnNumber, SQL_DESC_SCALE, 
-			(SQLPOINTER)graphoid, 0);
+			(SQLPOINTER)&graphoid, 0);
 	if (rc != SQL_SUCCESS)
 		return rc;
 
