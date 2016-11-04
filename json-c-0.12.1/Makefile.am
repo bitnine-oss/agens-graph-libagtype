@@ -7,8 +7,17 @@ noinst_LTLIBRARIES = libjson-c.la
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = json-c.pc
 
-libjson_cincludedir = $(includedir)/json-c
-libjson_cinclude_HEADERS = \
+libjson_c_la_SOURCES = \
+	arraylist.c \
+	debug.c \
+	json_c_version.c \
+	json_object.c \
+	json_object_iterator.c \
+	json_tokener.c \
+	json_util.c \
+	linkhash.c \
+	printbuf.c \
+	random_seed.c \
 	arraylist.h \
 	bits.h \
 	debug.h \
@@ -25,15 +34,4 @@ libjson_cinclude_HEADERS = \
 	printbuf.h \
 	random_seed.h
 
-libjson_c_la_SOURCES = \
-	arraylist.c \
-	debug.c \
-	json_c_version.c \
-	json_object.c \
-	json_object_iterator.c \
-	json_tokener.c \
-	json_util.c \
-	linkhash.c \
-	printbuf.c \
-	random_seed.c
 
