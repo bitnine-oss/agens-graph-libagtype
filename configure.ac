@@ -1,5 +1,5 @@
 AC_PREREQ(2.52)
-AC_INIT([agtype], 1.0, [ktlee@bitneint.net]) 
+AC_INIT([agtype], 0.9.0, [ktlee@bitneint.net]) 
 LT_INIT
 AC_CONFIG_AUX_DIR([.])
 AM_INIT_AUTOMAKE

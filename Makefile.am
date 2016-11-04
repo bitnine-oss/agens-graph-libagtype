@@ -14,10 +14,10 @@ libagtype_la_SOURCES = \
 
 libagtype_la_LIBADD = json-c-0.12.1/libjson-c.la
 
-libagtype_la_LDFLAGS = -version-info 1:0:0
+libagtype_la_LDFLAGS = -version-info 0:0:0
 
 libagodbc_type_la_SOURCES = ag_odbc.c
 
 libagodbc_type_la_LIBADD = libagtype.la
 
-libagodbc_type_la_LDFLAGS = -version-info 1:0:0
+libagodbc_type_la_LDFLAGS = -version-info 0:0:0
